@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/studio)",
+      "Bash(curl *)",
+      "PowerShell(cmd /c \"rd /s /q C:\\\\Irida-studio\\\\.next\" 2>&1; Write-Output \"done\")",
+      "PowerShell(cd C:\\\\Irida-studio; $env:DATABASE_URL=\"postgresql://neondb_owner:npg_nJK6eDAh4tmR@ep-round-moon-actrkf4v-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require\"; npx prisma migrate dev --name init 2>&1)",
+      "Bash(findstr /E \"\\(types|index\\)\\\\.tsx?\")",
+      "Bash(npx prisma *)",
+      "Bash(netstat -ano)",
+      "Bash(findstr :3002)",
+      "Bash(taskkill *)",
+      "PowerShell(Stop-Process *)",
+      "PowerShell(Get-Process *)",
+      "Bash(npm run *)"
+    ]
+  }
+}

@@ -1,0 +1,128 @@
+[
+  {
+    "id": "stk-001",
+    "slug": "stickers-brillosos",
+    "name": "Stickers brillosos",
+    "price": 2500,
+    "shortDescription": "Stickers con acabado brilloso, resistentes al agua y al sol.",
+    "description": "Nuestros stickers brillosos tienen un acabado premium que los hace resistentes al agua y al sol. Vienen en hojas con múltiples diseños originales de Irida Studio. Perfectos para decorar tu notebook, botella, cuaderno o lo que se te ocurra.",
+    "category": "stickers",
+    "images": [
+      "/images/products/stickers-brillosos.svg"
+    ],
+    "featured": true,
+    "inStock": true
+  },
+  {
+    "id": "stk-002",
+    "slug": "stickers-matte",
+    "name": "Stickers Matte",
+    "price": 2500,
+    "shortDescription": "Stickers con acabado mate, ideales para un look sofisticado.",
+    "description": "Los stickers matte son perfectos para quienes buscan un estilo más sobrio y elegante. Acabado suave al tacto y alta durabilidad. Disponibles en distintos diseños exclusivos de Irida.",
+    "category": "stickers",
+    "images": [
+      "/images/products/stickers-matte.svg"
+    ],
+    "featured": true,
+    "inStock": true
+  },
+  {
+    "id": "trta-001",
+    "slug": "topper-torta",
+    "name": "Topper para torta",
+    "price": 3900,
+    "shortDescription": "¡Toppers personalizados para cumpleaños! Hacé que tu torta sea única con diseños a tu gusto 💖",
+    "description": "¡Topper personalizados para cumpleaños!\n\nHacé que tu torta sea única con nuestros toppers diseñados a tu gusto 💖\nCreamos cada pieza de manera personalizada, adaptándonos a la temática, colores y estilo que imagines.\n\nIdeal para:\n• Cumpleaños infantiles\n• Cumpleaños de adultos\n• Eventos especiales\n\n- Diseños exclusivos\n- Materiales de calidad\n- Detalles cuidados en cada creación\n\nConvertí un momento especial en algo inolvidable\n\nConsultanos por tu diseño personalizado",
+    "category": "cumpleanos",
+    "images": [
+      "/images/products/topper-torta.png"
+    ],
+    "featured": true,
+    "inStock": true
+  },
+  {
+    "id": "foto-001",
+    "slug": "tiras-fotos-polaroid",
+    "name": "3 Tiras de fotos polaroid",
+    "price": 3500,
+    "shortDescription": "Recordá tus momentos favoritos en formato polaroid.",
+    "description": "Pack de 3 tiras de fotos estilo polaroid. Perfectas para regalar o decorar tu cuarto. Impresión de alta calidad en papel fotográfico. Mandanos tus fotos favoritas y nosotros hacemos el resto.",
+    "category": "fotitos",
+    "images": [
+      "/images/products/polaroid.svg"
+    ],
+    "featured": true,
+    "inStock": true
+  },
+  {
+    "id": "pint-001",
+    "slug": "bobbie-goods",
+    "name": "Bobbie goods",
+    "price": 6000,
+    "shortDescription": "Libro para colorear con ilustraciones originales estilo Bobbie Goods.",
+    "description": "Libro para colorear con hermosas ilustraciones de estilo Bobbie Goods. Ideal para relajarse y expresar tu creatividad. Páginas de alta calidad que aguantan distintos tipos de marcadores y lápices.",
+    "category": "a-pintar",
+    "images": [
+      "/images/products/bobbie-goods.svg"
+    ],
+    "featured": false,
+    "inStock": true
+  },
+  {
+    "id": "pint-002",
+    "slug": "girl-moment",
+    "name": "Girl moment",
+    "price": 4700,
+    "shortDescription": "Libro para colorear con temática femenina y empoderada.",
+    "description": "Libro para colorear con diseños inspirados en momentos de chicas. Ilustraciones originales con frases motivadoras. Una combinación perfecta de arte y bienestar.",
+    "category": "a-pintar",
+    "images": [
+      "/images/products/girl-moment.svg"
+    ],
+    "featured": false,
+    "inStock": true
+  },
+  {
+    "id": "agd-001",
+    "slug": "agendita-by-irida",
+    "name": "Agendita by Irida",
+    "price": null,
+    "shortDescription": "La agendita perfecta para organizar tu vida con estilo.",
+    "description": "Diseñada especialmente por Irida, esta agendita combina funcionalidad y estética. Con secciones para metas, hábitos, notas y mucho más. Precio próximamente — consultá por WhatsApp.",
+    "category": "agenditas",
+    "images": [
+      "/images/products/agendita.svg"
+    ],
+    "featured": true,
+    "inStock": true
+  },
+  {
+    "id": "emp-001",
+    "slug": "tags-ropa",
+    "name": "Tags ropa",
+    "price": 14999,
+    "shortDescription": "Tags personalizados para tu marca de ropa o emprendimiento.",
+    "description": "Pack de tags para ropa con tu logo y datos de tu marca. Disponibles en papel kraft, blanco o negro. Precio por pack de 50 unidades. Ideales para emprendimientos de moda y diseño.",
+    "category": "emprendimiento",
+    "images": [
+      "/images/products/tags-ropa.svg"
+    ],
+    "featured": false,
+    "inStock": true
+  },
+  {
+    "id": "alb-001",
+    "slug": "album-recuerdos-bebe",
+    "name": "Álbum de recuerdos de bebé",
+    "price": 16699,
+    "shortDescription": "Guardá los primeros momentos de tu bebé en este hermoso álbum.",
+    "description": "Álbum premium para los recuerdos del primer año de tu bebé. Con secciones para fotos, medidas, primeras veces y mucho más. El regalo perfecto para un baby shower o el primer cumpleaños.",
+    "category": "albumes",
+    "images": [
+      "/images/products/album-bebe.svg"
+    ],
+    "featured": true,
+    "inStock": true
+  }
+]

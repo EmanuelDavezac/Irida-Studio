@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800">
+  <rect width="800" height="800" fill="#FEF0E0"/>
+  <rect x="36" y="36" width="728" height="728" fill="none" stroke="#E4D0B0" stroke-width="1.5"/>
+  <circle cx="56" cy="56" r="3.5" fill="#C8A870"/>
+  <circle cx="744" cy="56" r="3.5" fill="#C8A870"/>
+  <circle cx="56" cy="744" r="3.5" fill="#C8A870"/>
+  <circle cx="744" cy="744" r="3.5" fill="#C8A870"/>
+
+  <!-- polaroid frame shapes -->
+  <rect x="260" y="155" width="120" height="140" fill="white" rx="4" opacity="0.8"/>
+  <rect x="268" y="163" width="104" height="110" fill="#E8DCC8" rx="2" opacity="0.6"/>
+  <rect x="268" y="279" width="104" height="8" fill="white" rx="0" opacity="0.8"/>
+
+  <rect x="420" y="140" width="120" height="140" fill="white" rx="4" opacity="0.8"/>
+  <rect x="428" y="148" width="104" height="110" fill="#D8CCC0" rx="2" opacity="0.6"/>
+  <rect x="428" y="264" width="104" height="8" fill="white" rx="0" opacity="0.8"/>
+
+  <text x="400" y="370" font-family="Georgia,'Times New Roman',serif" font-size="52" fill="#1A1A18" text-anchor="middle" font-style="italic">Tiras de fotos</text>
+  <text x="400" y="435" font-family="Georgia,'Times New Roman',serif" font-size="52" fill="#1A1A18" text-anchor="middle" font-style="italic">polaroid</text>
+
+  <line x1="320" y1="490" x2="480" y2="490" stroke="#C8A870" stroke-width="1.5"/>
+
+  <text x="400" y="540" font-family="Arial,Helvetica,sans-serif" font-size="15" fill="#9A8860" text-anchor="middle" letter-spacing="6">FOTITOS</text>
+
+  <text x="400" y="730" font-family="Georgia,'Times New Roman',serif" font-size="22" fill="#C4A882" text-anchor="middle" font-style="italic">Irida Studio</text>
+</svg>

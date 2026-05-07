@@ -1,0 +1,172 @@
+
+> irida-studio@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.3.1
+   - Local:        http://localhost:3000
+   - Network:      http://172.29.16.1:3000
+   - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 1861ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 6s (1581 modules)
+ GET /login 200 in 6874ms
+ ✓ Compiled in 1087ms (733 modules)
+ ○ Compiling /admin ...
+ ⨯ ./src/app/admin/layout.tsx:1:1
+Module not found: Can't resolve '@/auth'
+> 1 | import { auth } from '@/auth'
+    | ^
+  2 | import { redirect } from 'next/navigation'
+  3 | import Link from 'next/link'
+  4 | import { signOut } from '@/auth'
+
+https://nextjs.org/docs/messages/module-not-found
+ ⨯ ./src/app/admin/layout.tsx:1:1
+Module not found: Can't resolve '@/auth'
+> 1 | import { auth } from '@/auth'
+    | ^
+  2 | import { redirect } from 'next/navigation'
+  3 | import Link from 'next/link'
+  4 | import { signOut } from '@/auth'
+
+https://nextjs.org/docs/messages/module-not-found
+ ⨯ ./src/app/admin/layout.tsx:1:1
+Module not found: Can't resolve '@/auth'
+> 1 | import { auth } from '@/auth'
+    | ^
+  2 | import { redirect } from 'next/navigation'
+  3 | import Link from 'next/link'
+  4 | import { signOut } from '@/auth'
+
+https://nextjs.org/docs/messages/module-not-found
+ GET /admin 500 in 5979ms
+ ✓ Compiled /_error in 927ms (1078 modules)
+ GET /admin 307 in 676ms
+ GET /login 200 in 58ms
+ GET /login 200 in 115ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1510ms (1879 modules)
+ GET / 200 in 1910ms
+ GET / 200 in 447ms
+ ✓ Compiled /tienda in 464ms (1877 modules)
+ GET /tienda 200 in 676ms
+ ○ Compiling /contacto ...
+ ✓ Compiled /contacto in 587ms (1898 modules)
+ GET /contacto 200 in 678ms
+ GET /contacto 200 in 59ms
+ GET / 200 in 77ms
+ GET /tienda 200 in 65ms
+ GET /contacto 200 in 24ms
+ ✓ Compiled /api/auth/[...nextauth] in 471ms (2022 modules)
+ GET /api/auth/providers 200 in 1373ms
+ GET /api/auth/csrf 200 in 22ms
+ POST /api/auth/callback/credentials? 200 in 30ms
+ GET /api/auth/session 200 in 21ms
+ ○ Compiling /admin ...
+ ✓ Compiled /admin in 528ms (1065 modules)
+ GET /admin 200 in 927ms
+ ○ Compiling /admin/productos/nuevo ...
+ ✓ Compiled /admin/productos/nuevo in 624ms (2056 modules)
+ GET /admin/productos/nuevo 200 in 772ms
+ ○ Compiling /api/upload ...
+ ✓ Compiled /api/upload in 1630ms (2283 modules)
+ POST /api/upload 200 in 3827ms
+ ○ Compiling /api/admin/productos ...
+ ✓ Compiled /api/admin/productos in 532ms (2285 modules)
+ POST /api/admin/productos 201 in 1039ms
+ GET /admin 200 in 158ms
+ GET /admin 200 in 88ms
+ ✓ Compiled /tienda in 384ms (1314 modules)
+ GET /tienda 200 in 615ms
+ GET /login 200 in 303ms
+ ○ Compiling /registro ...
+ ✓ Compiled /registro in 557ms (2304 modules)
+ GET /registro 200 in 625ms
+ ○ Compiling /api/registro ...
+ ✓ Compiled /api/registro in 665ms (2057 modules)
+ POST /api/registro 201 in 1291ms
+ GET /login?registered=1 200 in 41ms
+ ✓ Compiled /api/auth/[...nextauth] in 253ms (1067 modules)
+ GET /api/auth/providers 200 in 339ms
+ GET /api/auth/csrf 200 in 9ms
+ POST /api/auth/callback/credentials? 200 in 456ms
+ GET /api/auth/session 200 in 11ms
+ ○ Compiling / ...
+ ✓ Compiled / in 658ms (1075 modules)
+ GET / 200 in 807ms
+ GET /tienda 200 in 115ms
+ ○ Compiling /producto/[slug] ...
+ ✓ Compiled /producto/[slug] in 1249ms (2088 modules)
+ GET /producto/llavero 200 in 2875ms
+ GET /producto/llavero 200 in 681ms
+ GET /producto/llavero 200 in 717ms
+ GET / 200 in 127ms
+prisma:error Error in PostgreSQL connection: Error { kind: Io, cause: Some(Os { code: 10054, kind: ConnectionReset, message: "Se ha forzado la interrupción de una conexión existente por el host remoto." }) }
+prisma:error Error in PostgreSQL connection: Error { kind: Io, cause: Some(Os { code: 10054, kind: ConnectionReset, message: "Se ha forzado la interrupción de una conexión existente por el host remoto." }) }
+prisma:error Error in PostgreSQL connection: Error { kind: Io, cause: Some(Os { code: 10054, kind: ConnectionReset, message: "Se ha forzado la interrupción de una conexión existente por el host remoto." }) }
+prisma:error Error in PostgreSQL connection: Error { kind: Io, cause: Some(Os { code: 10054, kind: ConnectionReset, message: "Se ha forzado la interrupción de una conexión existente por el host remoto." }) }
+prisma:error Error in PostgreSQL connection: Error { kind: Io, cause: Some(Os { code: 10054, kind: ConnectionReset, message: "Se ha forzado la interrupción de una conexión existente por el host remoto." }) }
+prisma:error Error in PostgreSQL connection: Error { kind: Io, cause: Some(Os { code: 10054, kind: ConnectionReset, message: "Se ha forzado la interrupción de una conexión existente por el host remoto." }) }
+   Reload env: .env.local
+ ✓ Compiled in 7.6s (1925 modules)
+   Reload env: .env.local
+ ✓ Compiled in 1588ms (1925 modules)
+   Reload env: .env.local
+ ✓ Compiled in 865ms (1911 modules)
+ GET /login 200 in 578ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 1172ms (1053 modules)
+ GET /api/auth/providers 200 in 1460ms
+ GET /api/auth/csrf 200 in 10ms
+[31m[auth][error][0m CredentialsSignin: Read more at https://errors.authjs.dev#credentialssignin
+    at Module.callback (webpack-internal:///(rsc)/./node_modules/@auth/core/lib/actions/callback/index.js:246:23)
+    at async AuthInternal (webpack-internal:///(rsc)/./node_modules/@auth/core/lib/index.js:70:24)
+    at async Auth (webpack-internal:///(rsc)/./node_modules/@auth/core/index.js:130:34)
+    at async AppRouteRouteModule.do (C:\Irida-studio\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:34112)
+    at async AppRouteRouteModule.handle (C:\Irida-studio\node_modules\next\dist\compiled\next-server\app-route.runtime.dev.js:26:41338)
+    at async doRender (C:\Irida-studio\node_modules\next\dist\server\base-server.js:1513:42)
+    at async DevServer.renderToResponseWithComponentsImpl (C:\Irida-studio\node_modules\next\dist\server\base-server.js:1915:28)
+    at async DevServer.renderPageComponent (C:\Irida-studio\node_modules\next\dist\server\base-server.js:2403:24)
+    at async DevServer.renderToResponseImpl (C:\Irida-studio\node_modules\next\dist\server\base-server.js:2440:32)
+    at async DevServer.pipeImpl (C:\Irida-studio\node_modules\next\dist\server\base-server.js:1007:25)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Irida-studio\node_modules\next\dist\server\next-server.js:305:17)
+    at async DevServer.handleRequestImpl (C:\Irida-studio\node_modules\next\dist\server\base-server.js:899:17)
+    at async C:\Irida-studio\node_modules\next\dist\server\dev\next-dev-server.js:371:20
+    at async Span.traceAsyncFn (C:\Irida-studio\node_modules\next\dist\trace\trace.js:157:20)
+    at async DevServer.handleRequest (C:\Irida-studio\node_modules\next\dist\server\dev\next-dev-server.js:368:24)
+    at async invokeRender (C:\Irida-studio\node_modules\next\dist\server\lib\router-server.js:237:21)
+    at async handleRequest (C:\Irida-studio\node_modules\next\dist\server\lib\router-server.js:428:24)
+    at async requestHandlerImpl (C:\Irida-studio\node_modules\next\dist\server\lib\router-server.js:452:13)
+    at async Server.requestListener (C:\Irida-studio\node_modules\next\dist\server\lib\start-server.js:158:13)
+ POST /api/auth/callback/credentials? 200 in 1110ms
+ GET /api/auth/providers 200 in 21ms
+ GET /api/auth/csrf 200 in 10ms
+ POST /api/auth/callback/credentials? 200 in 464ms
+ GET /api/auth/session 200 in 17ms
+ GET / 200 in 222ms
+ ✓ Compiled in 739ms (1004 modules)
+ GET / 200 in 341ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 652ms (924 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /_next/static/webpack/ea63eed8497b50e2.webpack.hot-update.json 404 in 1152ms
+ GET / 200 in 149ms
+ ✓ Compiled in 1252ms (1928 modules)
+ ✓ Compiled in 1ms (924 modules)
+ ✓ Compiled in 0ms (924 modules)
+ ✓ Compiled in 1ms (924 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /_next/static/webpack/20e3a4386a833edd.webpack.hot-update.json 404 in 1855ms
+ GET / 200 in 1653ms
+ GET / 200 in 871ms
+ ✓ Compiled in 1656ms (1923 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /_next/static/webpack/916097a1e2090037.webpack.hot-update.json 404 in 1359ms
+ GET / 200 in 364ms
+ GET / 200 in 558ms
+ GET /tienda 200 in 283ms
+ GET /tienda?categoria=stickers 200 in 127ms
+ GET /tienda 200 in 138ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Irida-studio\.next\cache\webpack\server-development\4.pack.gz_' -> 'C:\Irida-studio\.next\cache\webpack\server-development\4.pack.gz'

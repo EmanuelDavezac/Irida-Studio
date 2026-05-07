@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Warm cream palette */
+    --background: 55 30% 97%;        /* #FAFAF5 */
+    --foreground: 60 5% 10%;         /* #1A1A18 */
+    --card: 0 0% 100%;               /* #FFFFFF */
+    --card-foreground: 60 5% 10%;
+    --primary: 35 38% 64%;           /* #C4A882 warm tan */
+    --primary-foreground: 60 5% 10%;
+    --secondary: 40 35% 91%;         /* #F0EBE1 soft beige */
+    --secondary-foreground: 60 5% 10%;
+    --muted: 45 25% 95%;             /* #F5F3EF */
+    --muted-foreground: 0 0% 44%;    /* #707070 */
+    --accent: 35 38% 64%;
+    --accent-foreground: 60 5% 10%;
+    --border: 40 20% 88%;            /* #E8E4DC */
+    --input: 40 20% 88%;
+    --ring: 35 38% 64%;
+    --radius: 0.75rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}
+
+@layer utilities {
+  .container {
+    @apply max-w-6xl mx-auto;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}

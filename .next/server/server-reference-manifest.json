@@ -1,0 +1,32 @@
+{
+  "node": {
+    "009e87ade4a73fb1f18ecf062354f9c208bdf62fb4": {
+      "workers": {
+        "app/admin/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CIrida-studio%5C%5Csrc%5C%5Capp%5C%5Cadmin%5C%5Clayout.tsx%22%2C%5B%7B%22id%22%3A%22009e87ade4a73fb1f18ecf062354f9c208bdf62fb4%22%2C%22exportedName%22%3A%22%24%24RSC_SERVER_ACTION_0%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/admin/productos/[id]/editar/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CIrida-studio%5C%5Csrc%5C%5Capp%5C%5Cadmin%5C%5Clayout.tsx%22%2C%5B%7B%22id%22%3A%22009e87ade4a73fb1f18ecf062354f9c208bdf62fb4%22%2C%22exportedName%22%3A%22%24%24RSC_SERVER_ACTION_0%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/admin/productos/nuevo/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CIrida-studio%5C%5Csrc%5C%5Capp%5C%5Cadmin%5C%5Clayout.tsx%22%2C%5B%7B%22id%22%3A%22009e87ade4a73fb1f18ecf062354f9c208bdf62fb4%22%2C%22exportedName%22%3A%22%24%24RSC_SERVER_ACTION_0%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        },
+        "app/admin/categorias/page": {
+          "moduleId": "(rsc)/./node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22C%3A%5C%5CIrida-studio%5C%5Csrc%5C%5Capp%5C%5Cadmin%5C%5Clayout.tsx%22%2C%5B%7B%22id%22%3A%22009e87ade4a73fb1f18ecf062354f9c208bdf62fb4%22%2C%22exportedName%22%3A%22%24%24RSC_SERVER_ACTION_0%22%7D%5D%5D%5D&__client_imported__=!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/admin/page": "rsc",
+        "app/admin/productos/[id]/editar/page": "rsc",
+        "app/admin/productos/nuevo/page": "rsc",
+        "app/admin/categorias/page": "rsc"
+      }
+    }
+  },
+  "edge": {},
+  "encryptionKey": "pei9RiiTYmylBZ0ZAC0U98jHMtlEmIGQYmX64gyhXzw="
+}
