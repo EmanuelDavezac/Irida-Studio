@@ -1,1 +1,31 @@
 node_modules
+# Dependencias
+/node_modules
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Next.js (El causante de los problemas de hoy)
+/.next/
+/out/
+
+# Producción
+/build
+
+# Archivos de sistema operativo
+.DS_Store
+*.pem
+
+# Logs de errores
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Variables de entorno locales (¡Muy importante por seguridad!)
+.env*.local
+
+# Vercel
+.vercel
