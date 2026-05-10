@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ShoppingBag, Menu, X, UserCircle, LogOut } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useSession, signOut } from 'next-auth/react'
 import { useCartStore, useCartItemCount } from '@/store/cartStore'
 import { cn } from '@/lib/utils'
+import IriLogo from '@/components/ui/IriLogo'
 
 const navLinks = [
   { href: '/', label: 'Inicio' },
@@ -16,161 +15,109 @@ const navLinks = [
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
 
-  const { data: session, status } = useSession()
   const openCart = useCartStore((s) => s.openCart)
   const itemCount = useCartItemCount()
 
   useEffect(() => {
     setMounted(true)
-    const handleScroll = () => setScrolled(window.scrollY > 12)
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    const onScroll = () => setScrolled(window.scrollY > 12)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
   return (
     <>
       <header
         className={cn(
-          'fixed top-0 left-0 right-0 z-30 transition-all duration-300',
+          'sticky top-0 z-30 h-14 flex items-center justify-between px-5 transition-all duration-300',
           scrolled
-            ? 'bg-background/95 backdrop-blur-md shadow-sm border-b border-border'
+            ? 'bg-ir-cream/92 backdrop-blur-[8px] backdrop-saturate-150 border-b border-ir-line/50'
             : 'bg-transparent'
         )}
       >
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link
-              href="/"
-              className="font-serif text-2xl italic text-foreground hover:text-foreground/80 transition-colors"
-            >
-              Irida
-            </Link>
+        {/* Hamburger — left */}
+        <button
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-label="Abrir menú"
+          className="w-9 h-9 flex items-center justify-center shrink-0"
+        >
+          <svg width="20" height="14" viewBox="0 0 20 14" fill="none" stroke="currentColor" strokeWidth="1.4">
+            <line x1="0" y1="2" x2="20" y2="2" />
+            <line x1="0" y1="7" x2="14" y2="7" />
+            <line x1="0" y1="12" x2="20" y2="12" />
+          </svg>
+        </button>
 
-            {/* Desktop nav */}
-            <nav className="hidden md:flex items-center gap-8">
-              {navLinks.map(({ href, label }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="font-sans text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {label}
-                </Link>
-              ))}
-            </nav>
+        {/* Logo — center (absolute so it stays visually centered) */}
+        <Link href="/" className="absolute left-1/2 -translate-x-1/2" aria-label="Irida Studio">
+          <IriLogo size={24} />
+        </Link>
 
-            {/* Actions */}
-            <div className="flex items-center gap-2">
-              {/* Auth button — desktop */}
-              {status !== 'loading' && (
-                <div className="hidden md:flex items-center">
-                  {session ? (
-                    <button
-                      onClick={() => signOut({ callbackUrl: '/' })}
-                      className="flex items-center gap-1.5 font-sans text-sm text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      Salir
-                    </button>
-                  ) : (
-                    <Link
-                      href="/login"
-                      className="flex items-center gap-1.5 font-sans text-sm text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
-                    >
-                      <UserCircle className="h-4 w-4" />
-                      Iniciar sesión
-                    </Link>
-                  )}
-                </div>
-              )}
-
-              {/* Cart button */}
-              <button
-                onClick={openCart}
-                className="relative p-2 rounded-full hover:bg-muted transition-colors"
-                aria-label="Abrir carrito"
-              >
-                <ShoppingBag className="h-5 w-5" />
-                {mounted && itemCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-foreground text-background text-[10px] font-sans font-bold w-4 h-4 rounded-full flex items-center justify-center leading-none">
-                    {itemCount > 9 ? '9+' : itemCount}
-                  </span>
-                )}
-              </button>
-
-              {/* Mobile menu toggle */}
-              <button
-                onClick={() => setMobileOpen((v) => !v)}
-                className="md:hidden p-2 rounded-full hover:bg-muted transition-colors"
-                aria-label="Abrir menú"
-              >
-                {mobileOpen ? (
-                  <X className="h-5 w-5" />
-                ) : (
-                  <Menu className="h-5 w-5" />
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
+        {/* Cart — right */}
+        <button
+          onClick={openCart}
+          aria-label="Abrir carrito"
+          className="w-9 h-9 flex items-center justify-center relative shrink-0"
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.4">
+            <path d="M 3 5 L 6 5 L 7.5 14 L 17 14 L 18.5 7 L 6.5 7" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx="9" cy="17.5" r="1.2" fill="currentColor" stroke="none" />
+            <circle cx="15" cy="17.5" r="1.2" fill="currentColor" stroke="none" />
+          </svg>
+          {mounted && itemCount > 0 && (
+            <span className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-ir-gold text-ir-cream text-[9px] font-sans font-semibold grid place-items-center leading-none">
+              {itemCount > 9 ? '9+' : itemCount}
+            </span>
+          )}
+        </button>
       </header>
 
-      {/* Mobile menu */}
+      {/* Mobile nav drawer */}
       <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.15 }}
-            className="fixed top-16 left-0 right-0 z-20 bg-background border-b border-border shadow-lg md:hidden"
-          >
-            <nav className="container mx-auto px-4 py-6 flex flex-col gap-4">
+        {menuOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-ir-ink/40 z-40"
+              onClick={() => setMenuOpen(false)}
+            />
+            <motion.nav
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              className="fixed left-0 top-0 h-full w-[80%] max-w-xs bg-ir-cream z-50 flex flex-col p-8 gap-6"
+            >
+              <button
+                onClick={() => setMenuOpen(false)}
+                aria-label="Cerrar menú"
+                className="self-end mb-4 text-ir-mute"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4">
+                  <line x1="2" y1="2" x2="14" y2="14" /><line x1="14" y1="2" x2="2" y2="14" />
+                </svg>
+              </button>
               {navLinks.map(({ href, label }) => (
                 <Link
                   key={href}
                   href={href}
-                  onClick={() => setMobileOpen(false)}
-                  className="font-sans text-base text-foreground py-1"
+                  onClick={() => setMenuOpen(false)}
+                  className="font-serif text-xl text-ir-ink hover:text-ir-gold transition-colors"
                 >
                   {label}
                 </Link>
               ))}
-              <div className="border-t border-border pt-4">
-                {session ? (
-                  <button
-                    onClick={() => { setMobileOpen(false); signOut({ callbackUrl: '/' }) }}
-                    className="flex items-center gap-2 font-sans text-base text-muted-foreground py-1"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Cerrar sesión
-                  </button>
-                ) : (
-                  <>
-                    <Link
-                      href="/login"
-                      onClick={() => setMobileOpen(false)}
-                      className="flex items-center gap-2 font-sans text-base text-foreground py-1"
-                    >
-                      <UserCircle className="h-4 w-4" />
-                      Iniciar sesión
-                    </Link>
-                    <Link
-                      href="/registro"
-                      onClick={() => setMobileOpen(false)}
-                      className="font-sans text-base text-muted-foreground py-1 pl-6"
-                    >
-                      Crear cuenta
-                    </Link>
-                  </>
-                )}
+              <div className="mt-auto border-t border-ir-line pt-6">
+                <IriLogo size={22} color="#6B6157" />
               </div>
-            </nav>
-          </motion.div>
+            </motion.nav>
+          </>
         )}
       </AnimatePresence>
     </>

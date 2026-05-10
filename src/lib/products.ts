@@ -25,7 +25,7 @@ function mapProduct(p: {
     images: p.images,
     featured: p.featured,
     inStock: p.inStock,
-    variants: p.variants.map((v) => ({ id: v.id, name: v.name, price: v.price })),
+    variants: p.variants.map((v) => ({ id: v.id, name: v.name, price: v.price ?? undefined })),
   }
 }
 

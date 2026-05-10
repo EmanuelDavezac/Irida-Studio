@@ -1,154 +1,243 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { ArrowRight, Sparkles } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import ProductCard from '@/components/products/ProductCard'
 import { getFeaturedProducts } from '@/lib/products'
+import IriEyebrow from '@/components/ui/IriEyebrow'
+import HomeFeaturedCard from '@/components/home/HomeFeaturedCard'
+import {
+  OpenNotebook,
+  Agenda,
+  Stickers,
+  Topper,
+  Tag,
+  type PlaceholderKind,
+  type Tone,
+} from '@/components/products/placeholders'
 
 export const metadata: Metadata = {
   title: 'Irida Studio — Papelería y diseño',
 }
 
-const categories = [
-  { slug: 'stickers', label: 'Stickers', emoji: '✨', bg: 'bg-rose-50' },
-  { slug: 'agenditas', label: 'Agenditas', emoji: '📓', bg: 'bg-emerald-50' },
-  { slug: 'cumpleanos', label: 'Cumpleaños', emoji: '🎂', bg: 'bg-purple-50' },
-  { slug: 'fotitos', label: 'Fotitos', emoji: '📸', bg: 'bg-amber-50' },
-  { slug: 'llaveros', label: 'Llaveros', emoji: '🔑', bg: 'bg-sky-50' },
-  { slug: 'emprendimiento', label: 'Emprendimiento', emoji: '🏷️', bg: 'bg-orange-50' },
-  { slug: 'albumes', label: 'Álbumes', emoji: '📚', bg: 'bg-pink-50' },
-  { slug: 'a-pintar', label: '¡A pintar!', emoji: '🎨', bg: 'bg-yellow-50' },
+/* ── Static fallback when DB has no products ── */
+const PLACEHOLDER_PRODUCTS = [
+  { id: '1', slug: 'agenda-2026-crema',    name: 'Agenda 2026 · Crema',   price: 18900, category: 'agenditas',   featured: true, shortDescription: '', description: '', images: [], inStock: true, variants: [] },
+  { id: '2', slug: 'cuaderno-espiral-a5',  name: 'Cuaderno espiral A5',   price:  9800, category: 'albumes',     featured: true, shortDescription: '', description: '', images: [], inStock: true, variants: [] },
+  { id: '3', slug: 'pack-stickers-hello',  name: 'Pack stickers · Hello', price:  3200, category: 'stickers',   featured: true, shortDescription: '', description: '', images: [], inStock: true, variants: [] },
+  { id: '4', slug: 'llavero-personalizado',name: 'Llavero personalizado', price:  4500, category: 'llaveros',   featured: true, shortDescription: '', description: '', images: [], inStock: true, variants: [] },
 ]
 
+const CATEGORIES: { label: string; slug: string; kind: PlaceholderKind; tone: Tone }[] = [
+  { label: 'Agendas',  slug: 'agenditas', kind: 'agenda',   tone: 'beige' },
+  { label: 'Stickers', slug: 'stickers',  kind: 'stickers', tone: 'cream' },
+  { label: 'Toppers',  slug: 'cumpleanos',kind: 'topper',   tone: 'paper' },
+  { label: 'Tags',     slug: 'emprendimiento', kind: 'tag', tone: 'sage'  },
+]
+
+/* Map product category → placeholder illustration */
+const kindMap: Record<string, PlaceholderKind> = {
+  agenditas:      'agenda',
+  stickers:       'stickers',
+  llaveros:       'keychain',
+  fotitos:        'fotitos',
+  cumpleanos:     'topper',
+  albumes:        'cuaderno',
+  emprendimiento: 'tag',
+  'a-pintar':     'notebook',
+}
+const toneMap: Record<string, Tone> = {
+  agenditas: 'beige',
+  stickers:  'cream',
+  llaveros:  'paper',
+  fotitos:   'beige',
+  cumpleanos:'paper',
+  albumes:   'sage',
+}
+
 export default async function HomePage() {
-  const featured = await getFeaturedProducts()
+  let featured = await getFeaturedProducts().catch(() => [])
+  if (featured.length === 0) {
+    featured = PLACEHOLDER_PRODUCTS as typeof featured
+  }
+  const displayProducts = featured.slice(0, 4)
 
   return (
-    <>
-      {/* Hero */}
-      <section className="min-h-[88vh] flex items-center bg-background">
-        <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center py-20">
+    <div className="flex flex-col min-h-screen">
+
+      {/* ── HERO ────────────────────────────────────────── */}
+      <section className="relative h-[540px] -mt-14">
+        {/* Background illustration */}
+        <div className="absolute inset-0">
+          <OpenNotebook tone="cream" />
+          <div className="absolute inset-0" style={{ background: 'linear-gradient(180deg, transparent 30%, rgba(26,22,18,0.55) 100%)' }} />
+        </div>
+
+        {/* Content */}
+        <div className="relative z-10 h-full flex flex-col justify-between px-[22px] pt-[70px] pb-7">
+          {/* New tag */}
           <div>
-            <p className="font-sans text-xs tracking-[0.2em] text-muted-foreground uppercase mb-8">
-              Irida Studio
-            </p>
-            <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl leading-[1.1] text-foreground mb-6">
-              Diseño que
-              <br />
-              <em>se siente</em>
-              <br />
-              tuyo.
-            </h1>
-            <p className="font-sans text-muted-foreground text-lg mb-10 max-w-md leading-relaxed">
-              Stickers, agendas, álbumes y más — hechos con amor y atención al
-              detalle.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <Button asChild size="lg">
-                <Link href="/tienda">
-                  Ver tienda <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg">
-                <Link href="/contacto">Escribinos</Link>
-              </Button>
-            </div>
+            <span className="inline-block px-[10px] py-1 bg-ir-cream/92 text-ir-ink text-[9px] tracking-[0.22em] uppercase font-sans">
+              Nuevo · 04 / 26
+            </span>
           </div>
 
-          {/* Decorative */}
-          <div className="hidden lg:flex items-center justify-center">
-            <div className="relative w-80 h-80">
-              <div className="absolute inset-0 rounded-full bg-secondary/60" />
-              <div className="absolute inset-12 rounded-full bg-secondary/80" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="font-serif text-9xl text-primary/20 italic select-none">
-                  I
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured products */}
-      <section className="py-20 bg-muted/40">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-end mb-12">
-            <div>
-              <p className="font-sans text-xs tracking-[0.2em] text-muted-foreground uppercase mb-2">
-                Selección
-              </p>
-              <h2 className="font-serif text-3xl lg:text-4xl text-foreground">
-                Lo más querido
-              </h2>
-            </div>
-            <Link
-              href="/tienda"
-              className="font-sans text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+          {/* Headline + copy */}
+          <div className="text-ir-cream">
+            <h1
+              className="font-serif font-normal m-0"
+              style={{ fontSize: 64, lineHeight: 0.9, color: '#FBF7F0' }}
             >
-              Ver todo <ArrowRight className="h-3 w-3" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-            {featured.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Categories */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="mb-12">
-            <p className="font-sans text-xs tracking-[0.2em] text-muted-foreground uppercase mb-2">
-              Categorías
-            </p>
-            <h2 className="font-serif text-3xl lg:text-4xl text-foreground">
-              Explorá la tienda
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
-            {categories.map((cat) => (
-              <Link
-                key={cat.slug}
-                href={`/tienda?categoria=${cat.slug}`}
-                className={`group ${cat.bg} rounded-2xl p-6 sm:p-8 flex flex-col items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] transition-transform duration-200 aspect-square`}
-              >
-                <span className="text-3xl sm:text-4xl">{cat.emoji}</span>
-                <span className="font-sans text-xs sm:text-sm font-medium text-foreground text-center">
-                  {cat.label}
-                </span>
+              Diseño<br />
+              <em style={{ fontStyle: 'italic', color: '#FBF7F0', opacity: 0.85 }}>que</em><br />
+              <em style={{ fontStyle: 'italic', color: '#B8924C' }}>inspira.</em>
+            </h1>
+            <div className="flex justify-between items-end mt-6">
+              <p className="m-0 text-[12px] font-sans opacity-85 max-w-[200px] leading-[1.4]">
+                Papelería pensada en cada doblez. Pequeños lotes, papel marfil, dorado mate.
+              </p>
+              <Link href="/tienda" aria-label="Explorar tienda">
+                <span className="font-serif italic text-[24px]">→</span>
               </Link>
-            ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Banner */}
-      <section className="py-24 bg-foreground text-background">
-        <div className="container mx-auto px-4 text-center">
-          <Sparkles className="h-7 w-7 mx-auto mb-8 text-primary/60" />
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl mb-4 leading-tight">
-            Cada detalle,
-            <br />
-            pensado para vos.
+      {/* ── MANIFIESTO ──────────────────────────────────── */}
+      <section className="px-7 py-12 text-center bg-ir-cream">
+        <IriEyebrow>Manifiesto</IriEyebrow>
+        <p
+          className="font-serif italic font-normal text-ir-ink mt-3.5"
+          style={{ fontSize: 22, lineHeight: 1.35 }}
+        >
+          Hacemos pocas piezas, despacio.<br />
+          Cada una pensada para acompañarte<br />
+          una temporada entera.
+        </p>
+      </section>
+
+      {/* ── DESTACADOS ──────────────────────────────────── */}
+      <section className="bg-ir-paper px-5 pt-6 pb-9">
+        <div className="flex items-baseline justify-between mb-[18px]">
+          <h2 className="font-serif m-0" style={{ fontSize: 26 }}>
+            Destacados<span className="text-ir-gold">.</span>
           </h2>
-          <p className="font-sans text-background/50 mb-10 max-w-sm mx-auto leading-relaxed">
-            Encontrá el regalo perfecto o ese capricho que te merecés.
-          </p>
-          <Button
-            asChild
-            variant="outline"
-            size="lg"
-            className="border-background/40 text-background hover:bg-background hover:text-foreground"
+          <Link
+            href="/tienda"
+            className="text-[11px] tracking-[0.16em] uppercase text-ir-mute font-sans hover:text-ir-ink transition-colors"
           >
-            <Link href="/tienda">Ir a la tienda</Link>
-          </Button>
+            Ver todo
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3.5">
+          {/* Product 1 — large, spans 2 cols */}
+          {displayProducts[0] && (
+            <div className="col-span-2">
+              <HomeFeaturedCard
+                product={displayProducts[0]}
+                large
+                placeholderKind={kindMap[displayProducts[0].category] ?? 'agenda'}
+                placeholderTone={toneMap[displayProducts[0].category] ?? 'beige'}
+              />
+            </div>
+          )}
+
+          {/* Products 2 & 3 — 1 col each */}
+          {displayProducts[1] && (
+            <HomeFeaturedCard
+              product={displayProducts[1]}
+              placeholderKind={kindMap[displayProducts[1].category] ?? 'cuaderno'}
+              placeholderTone={toneMap[displayProducts[1].category] ?? 'sage'}
+            />
+          )}
+          {displayProducts[2] && (
+            <HomeFeaturedCard
+              product={displayProducts[2]}
+              placeholderKind={kindMap[displayProducts[2].category] ?? 'stickers'}
+              placeholderTone={toneMap[displayProducts[2].category] ?? 'cream'}
+            />
+          )}
+
+          {/* Product 4 — wide, spans 2 cols */}
+          {displayProducts[3] && (
+            <div className="col-span-2">
+              <HomeFeaturedCard
+                product={displayProducts[3]}
+                wide
+                placeholderKind={kindMap[displayProducts[3].category] ?? 'keychain'}
+                placeholderTone={toneMap[displayProducts[3].category] ?? 'paper'}
+              />
+            </div>
+          )}
         </div>
       </section>
-    </>
+
+      {/* ── CATEGORÍAS 2×2 ──────────────────────────────── */}
+      <section className="px-[22px] pt-10 pb-12 bg-ir-cream">
+        <IriEyebrow>Categorías</IriEyebrow>
+        <h2
+          className="font-serif font-normal m-0 mt-2.5 mb-[22px]"
+          style={{ fontSize: 28, lineHeight: 1 }}
+        >
+          Para cada<br />
+          <em className="text-ir-gold">pequeño ritual.</em>
+        </h2>
+
+        <div className="grid grid-cols-2 gap-3.5">
+          {CATEGORIES.map((cat) => {
+            const Illustration = ((): React.ReactNode => {
+              switch (cat.kind) {
+                case 'agenda':   return <Agenda    tone={cat.tone} />
+                case 'stickers': return <Stickers  tone={cat.tone} />
+                case 'topper':   return <Topper    tone={cat.tone} />
+                case 'tag':      return <Tag       tone={cat.tone} />
+                default:         return <Agenda    tone={cat.tone} />
+              }
+            })()
+
+            return (
+              <Link
+                key={cat.label}
+                href={`/tienda?categoria=${cat.slug}`}
+                className="relative overflow-hidden block"
+                style={{ aspectRatio: '1 / 1.15' }}
+              >
+                {Illustration}
+                <div className="absolute left-3 bottom-3 bg-ir-cream/94 px-2.5 py-1.5">
+                  <span className="font-serif italic text-[15px]">{cat.label}</span>
+                </div>
+              </Link>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* ── BANNER COLECCIÓN MARFIL ──────────────────────── */}
+      <section className="mx-5 mb-9 relative overflow-hidden bg-ir-ink text-ir-cream">
+        <div className="relative z-10 px-[22px] pt-9 pb-10">
+          <IriEyebrow color="#B8924C">Edición limitada</IriEyebrow>
+          <h2
+            className="font-serif m-0 mt-3 mb-3.5 text-ir-cream"
+            style={{ fontSize: 34, lineHeight: 1 }}
+          >
+            Colección<br />
+            <span className="italic text-ir-gold-light">Marfil</span>
+          </h2>
+          <p className="font-sans text-[13px] text-ir-cream/75 m-0 mb-[22px] max-w-[220px] leading-[1.45]">
+            14 piezas en papel marfil con detalles en dorado mate. Hechas a mano en pequeños lotes.
+          </p>
+          <Link
+            href="/tienda"
+            className="inline-flex items-center px-5 py-3.5 rounded-pill bg-ir-gold text-ir-cream text-[13px] font-medium tracking-[0.02em] hover:bg-ir-gold-light transition-colors"
+          >
+            Explorar colección →
+          </Link>
+        </div>
+        {/* Decorative floating agenda */}
+        <div className="absolute right-[-50px] bottom-[-30px] w-[200px] h-[200px] opacity-30 pointer-events-none">
+          <Agenda tone="ink" />
+        </div>
+      </section>
+
+    </div>
   )
 }

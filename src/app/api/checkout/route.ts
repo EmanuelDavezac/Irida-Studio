@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
         picture_url: item.product.images?.[0] ?? undefined,
       }
     })
-    .filter(Boolean) as NonNullable<(typeof items)[0]>[]
+    .filter((x): x is NonNullable<typeof x> => x !== null)
 
   if (!mpItems.length) {
     return NextResponse.json(
@@ -68,7 +68,8 @@ export async function POST(req: NextRequest) {
 
     const result = await preferenceAPI.create({
       body: {
-        items: mpItems,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        items: mpItems as any,
         payer: {
           name: buyer.nombre,
           surname: buyer.apellido,
@@ -76,7 +77,6 @@ export async function POST(req: NextRequest) {
           phone: { number: buyer.telefono },
           address: {
             street_name: buyer.direccion,
-            city_name: 'Esperanza',
             zip_code: '3080',
           },
         },
