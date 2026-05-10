@@ -1,10 +1,9 @@
 'use client'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { loginAction } from './actions'
 import { Button } from '@/components/ui/button'
 
 export default function LoginPage() {
-  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -15,27 +14,13 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      })
+    const result = await loginAction(email, password)
 
-      const data = await res.json()
-
-      if (!res.ok || data.error) {
-        setError('Email o contraseña incorrectos')
-        setLoading(false)
-        return
-      }
-
-      router.push('/admin')
-      router.refresh()
-    } catch {
-      setError('Error al conectar. Intentá de nuevo.')
+    if (result?.error) {
+      setError(result.error)
       setLoading(false)
     }
+    // si no hay error, signIn redirigió a /admin automáticamente
   }
 
   return (
