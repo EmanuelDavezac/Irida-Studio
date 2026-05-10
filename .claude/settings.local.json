@@ -15,7 +15,9 @@
       "Bash(npm run *)",
       "Bash(npx tsc *)",
       "Bash(npx next *)",
-      "Bash(echo \"started pid=$!\")"
+      "Bash(echo \"started pid=$!\")",
+      "Bash(rm -rf .next)",
+      "Bash(echo \"pid=$!\")"
     ]
   }
 }

@@ -2,7 +2,6 @@
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 
 export default function LoginPage() {
@@ -29,12 +28,7 @@ export default function LoginPage() {
       return
     }
 
-    const me = await fetch('/api/auth/session').then((r) => r.json())
-    if (me?.user?.role === 'ADMIN') {
-      router.push('/admin')
-    } else {
-      router.push('/')
-    }
+    router.push('/admin')
   }
 
   return (
@@ -82,12 +76,6 @@ export default function LoginPage() {
           </Button>
         </form>
 
-        <p className="mt-6 text-center font-sans text-xs text-muted-foreground">
-          ¿No tenés cuenta?{' '}
-          <Link href="/registro" className="text-foreground underline">
-            Registrate
-          </Link>
-        </p>
       </div>
     </div>
   )

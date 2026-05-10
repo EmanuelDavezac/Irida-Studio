@@ -5,9 +5,7 @@ import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import CartSidebar from '@/components/layout/CartSidebar'
-import WelcomeModal from '@/components/WelcomeModal'
 import Providers from '@/components/Providers'
-import CartSessionSync from '@/components/CartSessionSync'
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -65,8 +63,6 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
           <Footer />
           <CartSidebar />
-          <WelcomeModal />
-          <CartSessionSync />
         </Providers>
       </body>
     </html>
