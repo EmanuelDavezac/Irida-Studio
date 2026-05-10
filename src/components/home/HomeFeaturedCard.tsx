@@ -14,6 +14,7 @@ interface HomeFeaturedCardProps {
   wide?: boolean
   placeholderKind?: PlaceholderKind
   placeholderTone?: Tone
+  isPlaceholder?: boolean
 }
 
 export default function HomeFeaturedCard({
@@ -22,6 +23,7 @@ export default function HomeFeaturedCard({
   wide = false,
   placeholderKind = 'notebook',
   placeholderTone = 'cream',
+  isPlaceholder = false,
 }: HomeFeaturedCardProps) {
   const addItem = useCartStore((s) => s.addItem)
   const price = product.price ?? 0
@@ -65,9 +67,15 @@ export default function HomeFeaturedCard({
           flex: wide ? '0 0 140px' : 'initial',
         }}
       >
-        <Link href={`/producto/${product.slug}`} className="block w-full h-full">
-          <Thumb />
-        </Link>
+        {isPlaceholder ? (
+          <div className="block w-full h-full">
+            <Thumb />
+          </div>
+        ) : (
+          <Link href={`/producto/${product.slug}`} className="block w-full h-full">
+            <Thumb />
+          </Link>
+        )}
         {large && (
           <span className="absolute top-3 left-3 px-2 py-1 bg-ir-cream text-[9px] tracking-[0.18em] text-ir-ink-soft font-sans">
             ★ MÁS VENDIDO
@@ -80,11 +88,17 @@ export default function HomeFeaturedCard({
         <span className="text-[10px] tracking-[0.18em] uppercase text-ir-mute font-sans">
           {categoryLabel}
         </span>
-        <Link href={`/producto/${product.slug}`}>
+        {isPlaceholder ? (
           <span className="font-serif leading-[1.15]" style={{ fontSize: large ? 22 : 16 }}>
             {product.name}
           </span>
-        </Link>
+        ) : (
+          <Link href={`/producto/${product.slug}`}>
+            <span className="font-serif leading-[1.15]" style={{ fontSize: large ? 22 : 16 }}>
+              {product.name}
+            </span>
+          </Link>
+        )}
         <div className="flex items-center justify-between mt-1">
           <span className="font-serif italic text-ir-gold" style={{ fontSize: large ? 20 : 16 }}>
             {formatPrice(price)}

@@ -54,7 +54,8 @@ const toneMap: Record<string, Tone> = {
 
 export default async function HomePage() {
   let featured = await getFeaturedProducts().catch(() => [])
-  if (featured.length === 0) {
+  const usingPlaceholders = featured.length === 0
+  if (usingPlaceholders) {
     featured = PLACEHOLDER_PRODUCTS as typeof featured
   }
   const displayProducts = featured.slice(0, 4)
@@ -137,6 +138,7 @@ export default async function HomePage() {
                 large
                 placeholderKind={kindMap[displayProducts[0].category] ?? 'agenda'}
                 placeholderTone={toneMap[displayProducts[0].category] ?? 'beige'}
+                isPlaceholder={usingPlaceholders}
               />
             </div>
           )}
@@ -147,6 +149,7 @@ export default async function HomePage() {
               product={displayProducts[1]}
               placeholderKind={kindMap[displayProducts[1].category] ?? 'cuaderno'}
               placeholderTone={toneMap[displayProducts[1].category] ?? 'sage'}
+              isPlaceholder={usingPlaceholders}
             />
           )}
           {displayProducts[2] && (
@@ -154,6 +157,7 @@ export default async function HomePage() {
               product={displayProducts[2]}
               placeholderKind={kindMap[displayProducts[2].category] ?? 'stickers'}
               placeholderTone={toneMap[displayProducts[2].category] ?? 'cream'}
+              isPlaceholder={usingPlaceholders}
             />
           )}
 
@@ -165,6 +169,7 @@ export default async function HomePage() {
                 wide
                 placeholderKind={kindMap[displayProducts[3].category] ?? 'keychain'}
                 placeholderTone={toneMap[displayProducts[3].category] ?? 'paper'}
+                isPlaceholder={usingPlaceholders}
               />
             </div>
           )}
