@@ -1,81 +1,92 @@
 import Link from 'next/link'
-import { Instagram, MessageCircle } from 'lucide-react'
+import IriLogo from '@/components/ui/IriLogo'
 
-export default function Footer() {
-  const currentYear = new Date().getFullYear()
+interface FooterProps {
+  minimal?: boolean
+}
 
+export default function Footer({ minimal = false }: FooterProps) {
   return (
-    <footer className="bg-foreground text-background">
-      <div className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-          {/* Brand */}
-          <div>
-            <p className="font-serif text-2xl italic mb-3">Irida</p>
-            <p className="text-background/50 font-sans text-sm leading-relaxed max-w-xs">
-              Diseño que se siente tuyo. Papelería y productos de diseño hechos
-              con amor desde Esperanza, Santa Fe.
-            </p>
-          </div>
+    <footer
+      className={minimal ? 'py-6 px-5' : 'bg-ir-ink text-ir-cream pt-10 pb-7 px-5'}
+    >
+      {!minimal && (
+        <div className="flex flex-col gap-4 mb-7">
+          <IriLogo size={28} color="#FBF7F0" />
+          <p className="font-serif italic text-[18px] leading-snug text-ir-cream/90 max-w-[240px]">
+            Diseño que inspira, hecho para guardar.
+          </p>
+        </div>
+      )}
 
-          {/* Links */}
-          <div>
-            <p className="font-sans text-xs tracking-widest uppercase text-background/40 mb-4">
-              Navegá
-            </p>
-            <nav className="flex flex-col gap-3">
-              {[
-                { href: '/', label: 'Inicio' },
-                { href: '/tienda', label: 'Tienda' },
-                { href: '/contacto', label: 'Contacto' },
-              ].map(({ href, label }) => (
+      <div className="grid grid-cols-2 gap-5">
+        <div>
+          <p className={`text-[9px] tracking-[0.2em] uppercase mb-2.5 ${minimal ? 'text-ir-mute' : 'text-ir-cream/60'}`}>
+            Tienda
+          </p>
+          <ul className="flex flex-col gap-2 text-[13px]">
+            {[
+              { href: '/tienda', label: 'Catálogo' },
+              { href: '/tienda', label: 'Novedades' },
+              { href: '/contacto', label: 'Personalizados' },
+            ].map(({ href, label }) => (
+              <li key={label}>
                 <Link
-                  key={href}
                   href={href}
-                  className="font-sans text-sm text-background/70 hover:text-background transition-colors"
+                  className={minimal ? 'text-ir-ink hover:text-ir-gold transition-colors' : 'text-ir-cream/70 hover:text-ir-cream transition-colors'}
                 >
                   {label}
                 </Link>
-              ))}
-            </nav>
-          </div>
+              </li>
+            ))}
+          </ul>
+        </div>
 
-          {/* Contact */}
-          <div>
-            <p className="font-sans text-xs tracking-widest uppercase text-background/40 mb-4">
-              Contacto
-            </p>
-            <div className="flex flex-col gap-3">
+        <div>
+          <p className={`text-[9px] tracking-[0.2em] uppercase mb-2.5 ${minimal ? 'text-ir-mute' : 'text-ir-cream/60'}`}>
+            Contacto
+          </p>
+          <ul className="flex flex-col gap-2 text-[13px]">
+            <li>
               <a
                 href="https://wa.me/5493496567541"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 font-sans text-sm text-background/70 hover:text-background transition-colors"
+                className={`flex items-center gap-1.5 ${minimal ? 'text-ir-ink' : 'text-ir-cream/70 hover:text-ir-cream transition-colors'}`}
               >
-                <MessageCircle className="h-4 w-4 shrink-0" />
-                <span>+54 3496 567541</span>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                  <path d="M6 0a6 6 0 0 0-5.2 9L0 12l3.1-.8A6 6 0 1 0 6 0Zm3.4 8.5c-.2.4-1 .8-1.3.8-.4 0-.8.2-2.5-.6S2.7 6 2.5 5.7s-.4-1.1-.4-1.5c0-.4.2-.6.4-.8.2-.2.4-.2.5-.2h.4c.1 0 .3 0 .4.3l.5 1.2c0 .1.1.3 0 .4l-.2.3-.2.2c-.1.1 0 .3 0 .4 0 .1.4.7.9 1.2.6.4 1.1.6 1.3.6.1 0 .2 0 .3-.1l.4-.4c.1-.1.2-.1.4-.1.1 0 1 .5 1.1.6.2 0 .3.1.3.2.1.1.1.5 0 .8Z"/>
+                </svg>
+                WhatsApp
               </a>
+            </li>
+            <li>
               <a
                 href="https://instagram.com/irida_studio1"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 font-sans text-sm text-background/70 hover:text-background transition-colors"
+                className={`flex items-center gap-1.5 ${minimal ? 'text-ir-ink' : 'text-ir-cream/70 hover:text-ir-cream transition-colors'}`}
               >
-                <Instagram className="h-4 w-4 shrink-0" />
-                <span>@irida_studio1</span>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1">
+                  <rect x="0.5" y="0.5" width="11" height="11" rx="2.5"/>
+                  <circle cx="6" cy="6" r="2.4"/>
+                  <circle cx="9.2" cy="2.8" r="0.5" fill="currentColor"/>
+                </svg>
+                Instagram
               </a>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-16 pt-8 border-t border-background/10 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="font-sans text-xs text-background/30">
-            © {currentYear} Irida Studio. Todos los derechos reservados.
-          </p>
-          <p className="font-sans text-xs text-background/30">
-            Hecho con amor · Esperanza, Santa Fe
-          </p>
+            </li>
+            <li className={minimal ? 'text-ir-mute' : 'text-ir-cream/70'}>
+              hola@irida.com
+            </li>
+          </ul>
         </div>
       </div>
+
+      {!minimal && (
+        <div className="mt-7 pt-5 border-t border-ir-cream/[0.12] text-[10px] text-ir-cream/40 tracking-[0.1em]">
+          © 2026 IRIDA · Diseñado en Buenos Aires
+        </div>
+      )}
     </footer>
   )
 }

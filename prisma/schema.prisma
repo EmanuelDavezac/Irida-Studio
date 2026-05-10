@@ -8,40 +8,43 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-}
-
-enum Role {
-  ADMIN
-  USER
+  id                 String               @id @default(cuid())
+  email              String               @unique
+  password           String
+  role               Role                 @default(USER)
+  createdAt          DateTime             @default(now())
+  emailVerified      Boolean              @default(false)
+  emailVerifyToken   String?              @unique
+  name               String               @default("")
+  Address            Address[]
+  Order              Order[]
+  PasswordResetToken PasswordResetToken[]
+  WishlistItem       WishlistItem[]
 }
 
 model Product {
-  id               String    @id @default(cuid())
+  id               String         @id @default(cuid())
   name             String
-  slug             String    @unique
+  slug             String         @unique
   price            Float?
   shortDescription String
   description      String?
   category         String
   images           String[]
-  featured         Boolean   @default(false)
-  inStock          Boolean   @default(true)
+  featured         Boolean        @default(false)
+  inStock          Boolean        @default(true)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
   variants         Variant[]
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  WishlistItem     WishlistItem[]
 }
 
 model Variant {
-  id        String   @id @default(cuid())
+  id        String  @id @default(cuid())
   productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   name      String
   price     Float?
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model Category {
@@ -49,4 +52,108 @@ model Category {
   slug      String   @unique
   label     String
   createdAt DateTime @default(now())
+}
+
+model Address {
+  id         String   @id
+  userId     String
+  label      String
+  address    String
+  city       String
+  province   String
+  postalCode String
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  User       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Coupon {
+  id          String     @id
+  code        String     @unique
+  type        CouponType
+  value       Float
+  minPurchase Float?
+  maxUses     Int?
+  usedCount   Int        @default(0)
+  expiresAt   DateTime?
+  active      Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+}
+
+model Order {
+  id             String      @id
+  number         String      @unique
+  userId         String?
+  buyerName      String
+  buyerEmail     String
+  buyerPhone     String
+  address        String
+  city           String
+  province       String
+  postalCode     String
+  shippingMethod String
+  subtotal       Float
+  discount       Float       @default(0)
+  total          Float
+  couponCode     String?
+  status         OrderStatus @default(PENDING)
+  mpPaymentId    String?
+  mpOrderId      String?
+  trackingNumber String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime
+  User           User?       @relation(fields: [userId], references: [id])
+  OrderItem      OrderItem[]
+}
+
+model OrderItem {
+  id          String  @id
+  orderId     String
+  productId   String
+  productName String
+  variantName String?
+  quantity    Int
+  unitPrice   Float
+  total       Float
+  Order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model PasswordResetToken {
+  id        String    @id
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  User      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WishlistItem {
+  id        String   @id
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  Product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PREPARING
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }

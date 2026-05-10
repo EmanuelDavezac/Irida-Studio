@@ -12,7 +12,10 @@
       "Bash(taskkill *)",
       "PowerShell(Stop-Process *)",
       "PowerShell(Get-Process *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(npx tsc *)",
+      "Bash(npx next *)",
+      "Bash(echo \"started pid=$!\")"
     ]
   }
 }

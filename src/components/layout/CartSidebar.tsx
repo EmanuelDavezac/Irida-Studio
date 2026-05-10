@@ -1,199 +1,295 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Minus, Plus, ShoppingBag, ArrowRight } from 'lucide-react'
-import { useCartStore, useCartTotal } from '@/store/cartStore'
-import { formatPrice } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
+import { useCartStore } from '@/store/cartStore'
+import { formatPrice, cn } from '@/lib/utils'
+import IriEyebrow from '@/components/ui/IriEyebrow'
+import { ProductTile, type PlaceholderKind, type Tone } from '@/components/products/placeholders'
+
+const SHIPPING = 1500
+
+const categoryToKind: Record<string, PlaceholderKind> = {
+  agenditas: 'agenda',    stickers: 'stickers', llaveros: 'keychain',
+  fotitos:   'fotitos',   cumpleanos: 'topper', albumes: 'cuaderno',
+  emprendimiento: 'tag',  'a-pintar': 'notebook',
+}
+const categoryToTone: Record<string, Tone> = {
+  agenditas: 'beige', stickers: 'cream', llaveros: 'paper',
+  fotitos:   'beige', cumpleanos: 'paper', albumes: 'sage',
+}
+
+function TotalsRow({ label, value, muted }: { label: string; value: string; muted?: boolean }) {
+  return (
+    <div className={cn('flex justify-between py-1 text-[13px] font-sans', muted ? 'text-ir-mute' : 'text-ir-ink')}>
+      <span>{label}</span>
+      <span>{value}</span>
+    </div>
+  )
+}
 
 export default function CartSidebar() {
   const { items, isOpen, closeCart, removeItem, updateQuantity } = useCartStore()
-  const total = useCartTotal()
 
-  // Prevent body scroll when cart is open
+  const [coupon, setCoupon] = useState('')
+  const [couponApplied, setCouponApplied] = useState(false)
+
+  /* Lock body scroll when open */
   useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-    return () => {
-      document.body.style.overflow = ''
-    }
+    document.body.style.overflow = isOpen ? 'hidden' : ''
+    return () => { document.body.style.overflow = '' }
   }, [isOpen])
+
+  const subtotal  = items.reduce((s, i) => s + (i.variant?.price ?? i.product.price ?? 0) * i.quantity, 0)
+  const discount  = couponApplied ? Math.round(subtotal * 0.1) : 0
+  const total     = subtotal - discount + SHIPPING
+  const itemCount = items.reduce((s, i) => s + i.quantity, 0)
+
+  function handleApplyCoupon() {
+    if (coupon.trim().length > 1) setCouponApplied(true)
+  }
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Overlay */}
+          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-40"
+            transition={{ duration: 0.22 }}
+            className="fixed inset-0 z-40"
+            style={{ background: 'rgba(26,22,18,0.45)' }}
             onClick={closeCart}
             aria-hidden
           />
 
-          {/* Sidebar */}
-          <motion.div
+          {/* Drawer */}
+          <motion.aside
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-            className="fixed right-0 top-0 h-full w-full max-w-sm bg-background z-50 shadow-2xl flex flex-col"
+            transition={{ ease: [0.2, 0.7, 0.3, 1], duration: 0.3 }}
+            className="fixed top-0 right-0 bottom-0 z-50 bg-ir-cream flex flex-col"
+            style={{
+              width: '92%',
+              maxWidth: 420,
+              boxShadow: '-30px 0 60px -20px rgba(26,22,18,0.35)',
+            }}
+            aria-label="Tu carrito"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-border">
-              <h2 className="font-serif text-xl">
-                Carrito
-                {items.length > 0 && (
-                  <span className="font-sans text-sm text-muted-foreground ml-2">
-                    ({items.reduce((s, i) => s + i.quantity, 0)})
-                  </span>
-                )}
-              </h2>
+            {/* ── Header ── */}
+            <div className="flex items-start justify-between px-[22px] pt-5 pb-4">
+              <div>
+                <IriEyebrow>
+                  {itemCount === 1 ? '1 pieza' : `${itemCount} piezas`}
+                </IriEyebrow>
+                <h2
+                  className="font-serif font-normal mt-1.5 m-0"
+                  style={{ fontSize: 30, lineHeight: 1 }}
+                >
+                  Tu <em className="italic text-ir-gold">carrito.</em>
+                </h2>
+              </div>
               <button
                 onClick={closeCart}
-                className="p-2 rounded-full hover:bg-muted transition-colors"
                 aria-label="Cerrar carrito"
+                className="w-9 h-9 rounded-full grid place-items-center text-ir-ink hover:bg-ir-paper transition-colors border-0 bg-transparent text-[18px] leading-none"
               >
-                <X className="h-5 w-5" />
+                ×
               </button>
             </div>
 
-            {/* Items */}
-            <div className="flex-1 overflow-y-auto py-4 px-6">
+            <div className="border-b border-ir-line" />
+
+            {/* ── Items ── */}
+            <div className="flex-1 overflow-y-auto">
               {items.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-center gap-4 py-16">
-                  <ShoppingBag className="h-12 w-12 text-muted-foreground/30" />
+                <div className="flex flex-col items-center justify-center h-full gap-5 py-16 px-8 text-center">
+                  <svg width="40" height="40" viewBox="0 0 20 20" fill="none" stroke="#D8C4A4" strokeWidth="1.2">
+                    <path d="M 3 5 L 6 5 L 7.5 14 L 17 14 L 18.5 7 L 6.5 7" strokeLinecap="round" strokeLinejoin="round"/>
+                    <circle cx="9" cy="17.5" r="1.2" fill="#D8C4A4" stroke="none"/>
+                    <circle cx="15" cy="17.5" r="1.2" fill="#D8C4A4" stroke="none"/>
+                  </svg>
                   <div>
-                    <p className="font-serif text-lg text-foreground mb-1">
-                      Tu carrito está vacío
-                    </p>
-                    <p className="font-sans text-sm text-muted-foreground">
-                      Explorá la tienda y encontrá algo especial.
-                    </p>
+                    <p className="font-serif italic text-[18px] text-ir-ink mb-1 m-0">Carrito vacío</p>
+                    <p className="font-sans text-[12px] text-ir-mute m-0">Explorá la tienda y encontrá algo especial.</p>
                   </div>
-                  <Button variant="outline" onClick={closeCart} asChild>
-                    <Link href="/tienda">Ver productos</Link>
-                  </Button>
+                  <button
+                    onClick={closeCart}
+                    className="mt-2 px-5 py-2.5 rounded-pill border border-ir-ink bg-transparent text-ir-ink text-[13px] font-sans tracking-[0.02em] hover:bg-ir-ink hover:text-ir-cream transition-colors"
+                  >
+                    <Link href="/tienda" onClick={closeCart}>Ver tienda</Link>
+                  </button>
                 </div>
               ) : (
-                <ul className="flex flex-col gap-5">
+                <>
                   {items.map((item) => {
-                    const price = item.variant?.price ?? item.product.price ?? 0
+                    const price    = item.variant?.price ?? item.product.price ?? 0
+                    const kind     = categoryToKind[item.product.category] ?? 'notebook'
+                    const tone     = categoryToTone[item.product.category] ?? 'cream'
+                    const hasImage = !!item.product.images?.[0]
+
                     return (
-                      <li key={item.id} className="flex gap-4">
+                      <div
+                        key={item.id}
+                        className="grid gap-3.5 px-[22px] py-[18px] border-b border-ir-line"
+                        style={{ gridTemplateColumns: '80px 1fr' }}
+                      >
                         {/* Thumbnail */}
-                        <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-muted shrink-0">
-                          {item.product.images[0] ? (
-                            <Image
-                              src={item.product.images[0]}
-                              alt={item.product.name}
-                              fill
-                              className="object-cover"
-                              sizes="80px"
-                            />
-                          ) : (
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="font-serif text-2xl text-muted-foreground/20 italic">
-                                I
-                              </span>
+                        <div
+                          className="border border-ir-line overflow-hidden"
+                          style={{ height: 96 }}
+                        >
+                          {hasImage ? (
+                            <div className="relative w-full h-full">
+                              <Image
+                                src={item.product.images[0]}
+                                alt={item.product.name}
+                                fill
+                                className="object-cover"
+                                sizes="80px"
+                              />
                             </div>
+                          ) : (
+                            <ProductTile kind={kind} tone={tone} />
                           )}
                         </div>
 
                         {/* Info */}
-                        <div className="flex-1 min-w-0">
-                          <p className="font-serif text-sm leading-snug text-foreground mb-0.5 truncate">
-                            {item.product.name}
-                          </p>
-                          {item.variant && (
-                            <p className="text-xs text-muted-foreground mb-1">
-                              {item.variant.name}
-                            </p>
-                          )}
-                          <p className="font-sans text-sm font-medium text-foreground mb-3">
-                            {formatPrice(price)}
-                          </p>
+                        <div className="flex flex-col justify-between min-w-0">
+                          <div>
+                            <div className="flex justify-between gap-2">
+                              <span className="font-serif text-[15px] leading-snug">
+                                {item.product.name}
+                              </span>
+                              <button
+                                onClick={() => removeItem(item.id)}
+                                aria-label={`Eliminar ${item.product.name}`}
+                                className="shrink-0 bg-transparent border-0 text-[14px] text-ir-mute hover:text-ir-ink transition-colors leading-none h-[18px]"
+                              >
+                                ×
+                              </button>
+                            </div>
+                            {item.variant && (
+                              <p className="font-sans text-[11px] text-ir-mute mt-0.5 m-0">
+                                {item.variant.name}
+                              </p>
+                            )}
+                          </div>
 
-                          {/* Quantity controls */}
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() =>
-                                updateQuantity(item.id, item.quantity - 1)
-                              }
-                              className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
-                              aria-label="Quitar uno"
+                          <div className="flex items-center justify-between">
+                            {/* Qty pill */}
+                            <div
+                              className="inline-flex items-center border border-ir-line rounded-pill bg-white"
                             >
-                              <Minus className="h-3 w-3" />
-                            </button>
-                            <span className="font-sans text-sm w-6 text-center">
-                              {item.quantity}
+                              <button
+                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                aria-label="Quitar uno"
+                                className="border-0 bg-transparent text-[14px] grid place-items-center hover:text-ir-gold transition-colors"
+                                style={{ width: 26, height: 28 }}
+                              >−</button>
+                              <span className="text-[12px] font-sans text-center select-none" style={{ width: 22 }}>
+                                {item.quantity}
+                              </span>
+                              <button
+                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                aria-label="Agregar uno"
+                                className="border-0 bg-transparent text-[14px] grid place-items-center hover:text-ir-gold transition-colors"
+                                style={{ width: 26, height: 28 }}
+                              >+</button>
+                            </div>
+                            {/* Price */}
+                            <span className="font-serif italic text-ir-gold text-[16px]">
+                              {formatPrice(price * item.quantity)}
                             </span>
-                            <button
-                              onClick={() =>
-                                updateQuantity(item.id, item.quantity + 1)
-                              }
-                              className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors"
-                              aria-label="Agregar uno"
-                            >
-                              <Plus className="h-3 w-3" />
-                            </button>
                           </div>
                         </div>
-
-                        {/* Remove */}
-                        <button
-                          onClick={() => removeItem(item.id)}
-                          className="shrink-0 p-1 text-muted-foreground hover:text-foreground transition-colors"
-                          aria-label="Eliminar"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </li>
+                      </div>
                     )
                   })}
-                </ul>
+
+                  {/* Coupon */}
+                  <div className="px-[22px] pt-5 pb-3">
+                    <IriEyebrow className="mb-2">Cupón</IriEyebrow>
+                    <div className="flex gap-2 mt-2">
+                      <input
+                        type="text"
+                        value={coupon}
+                        onChange={(e) => setCoupon(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleApplyCoupon()}
+                        placeholder="Código de descuento"
+                        disabled={couponApplied}
+                        className={cn(
+                          'flex-1 px-3.5 py-2.5 text-[13px] font-sans bg-white border border-ir-line rounded-pill outline-none',
+                          'focus:border-ir-gold focus:bg-white',
+                          'placeholder:text-ir-mute/60 disabled:opacity-60'
+                        )}
+                      />
+                      <button
+                        onClick={handleApplyCoupon}
+                        disabled={couponApplied || coupon.trim().length < 2}
+                        className={cn(
+                          'px-4 py-2.5 rounded-pill border border-ir-line text-[13px] font-sans transition-colors',
+                          'hover:bg-ir-paper disabled:opacity-40 disabled:cursor-not-allowed bg-transparent text-ir-ink'
+                        )}
+                      >
+                        Aplicar
+                      </button>
+                    </div>
+                    <AnimatePresence>
+                      {couponApplied && (
+                        <motion.p
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.15 }}
+                          className="mt-2.5 text-[12px] font-serif italic text-ir-gold m-0"
+                        >
+                          ✓ Cupón aplicado · 10% off
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </>
               )}
             </div>
 
-            {/* Footer */}
+            {/* ── Totals + CTA ── */}
             {items.length > 0 && (
-              <div className="px-6 py-6 border-t border-border space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="font-sans text-sm text-muted-foreground">
-                    Subtotal
-                  </span>
-                  <span className="font-serif text-lg font-medium">
+              <div className="border-t border-ir-line bg-ir-paper px-[22px] py-4">
+                <TotalsRow label="Subtotal" value={formatPrice(subtotal)} muted />
+                {discount > 0 && (
+                  <TotalsRow label="Descuento" value={`− ${formatPrice(discount)}`} muted />
+                )}
+                <TotalsRow label="Envío" value={formatPrice(SHIPPING)} muted />
+
+                <div className="border-t border-ir-line my-2.5" />
+
+                <div className="flex items-baseline justify-between">
+                  <span className="font-serif italic text-[16px] text-ir-ink">Total</span>
+                  <span className="font-serif italic text-ir-gold text-[24px]">
                     {formatPrice(total)}
                   </span>
                 </div>
-                <Button
-                  asChild
-                  size="lg"
-                  className="w-full"
+
+                <Link
+                  href="/checkout"
                   onClick={closeCart}
+                  className="mt-3.5 flex items-center justify-center w-full h-11 rounded-pill bg-ir-ink text-ir-cream text-[13px] font-sans font-medium tracking-[0.02em] hover:bg-ir-gold transition-colors"
                 >
-                  <Link href="/checkout">
-                    Ir al checkout <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-                <button
-                  onClick={closeCart}
-                  className="w-full text-center font-sans text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Seguir comprando
-                </button>
+                  Ir a checkout →
+                </Link>
+
+                <p className="mt-2.5 text-center text-[10px] font-sans text-ir-mute tracking-[0.14em] uppercase m-0">
+                  Pago seguro · MercadoPago
+                </p>
               </div>
             )}
-          </motion.div>
+          </motion.aside>
         </>
       )}
     </AnimatePresence>
