@@ -1,6 +1,5 @@
 'use client'
 import { useState } from 'react'
-import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 
@@ -16,34 +15,42 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
-    const res = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    })
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
 
-    setLoading(false)
-    if (res?.error) {
-      setError('Email o contraseña incorrectos')
-      return
+      const data = await res.json()
+
+      if (!res.ok || data.error) {
+        setError('Email o contraseña incorrectos')
+        setLoading(false)
+        return
+      }
+
+      router.push('/admin')
+      router.refresh()
+    } catch {
+      setError('Error al conectar. Intentá de nuevo.')
+      setLoading(false)
     }
-
-    router.push('/admin')
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <div className="min-h-screen bg-ir-cream flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <p className="font-sans text-xs tracking-[0.2em] text-muted-foreground uppercase mb-2">
+          <p className="font-sans text-xs tracking-[0.2em] text-ir-mute uppercase mb-2">
             Irida Studio
           </p>
-          <h1 className="font-serif text-3xl text-foreground">Iniciar sesión</h1>
+          <h1 className="font-serif text-3xl text-ir-ink">Panel admin</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block font-sans text-xs text-muted-foreground mb-1">
+            <label className="block font-sans text-xs tracking-[0.12em] uppercase text-ir-mute mb-2">
               Email
             </label>
             <input
@@ -51,11 +58,12 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-primary"
+              autoComplete="email"
+              className="w-full border border-ir-line rounded-ir px-3.5 py-3 text-[14px] font-sans bg-white focus:outline-none focus:border-ir-gold transition-colors"
             />
           </div>
           <div>
-            <label className="block font-sans text-xs text-muted-foreground mb-1">
+            <label className="block font-sans text-xs tracking-[0.12em] uppercase text-ir-mute mb-2">
               Contraseña
             </label>
             <input
@@ -63,7 +71,8 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-primary"
+              autoComplete="current-password"
+              className="w-full border border-ir-line rounded-ir px-3.5 py-3 text-[14px] font-sans bg-white focus:outline-none focus:border-ir-gold transition-colors"
             />
           </div>
 
@@ -75,7 +84,6 @@ export default function LoginPage() {
             {loading ? 'Ingresando...' : 'Ingresar'}
           </Button>
         </form>
-
       </div>
     </div>
   )

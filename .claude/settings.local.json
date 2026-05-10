@@ -17,7 +17,9 @@
       "Bash(npx next *)",
       "Bash(echo \"started pid=$!\")",
       "Bash(rm -rf .next)",
-      "Bash(echo \"pid=$!\")"
+      "Bash(echo \"pid=$!\")",
+      "Bash(git add *)",
+      "Bash(git commit *)"
     ]
   }
 }
