@@ -11,6 +11,9 @@ import { ProductTile, type PlaceholderKind, type Tone } from '@/components/produ
 
 const SHIPPING = 1500
 
+type DeliveryMethod = 'envio' | 'retiro'
+type StepId = 'entrega' | 'datos' | 'direccion' | 'resumen'
+
 const categoryToKind: Record<string, PlaceholderKind> = {
   agenditas: 'agenda',    stickers: 'stickers',  llaveros: 'keychain',
   fotitos:   'fotitos',   cumpleanos: 'topper',  albumes: 'cuaderno',
@@ -21,17 +24,32 @@ const categoryToTone: Record<string, Tone> = {
   fotitos:   'beige', cumpleanos: 'paper', albumes: 'sage',
 }
 
+function getProgressLabels(method: DeliveryMethod | null) {
+  return method === 'retiro'
+    ? ['Entrega', 'Datos', 'Resumen']
+    : ['Entrega', 'Datos', 'Envío', 'Resumen']
+}
+
+function getStepIndex(step: StepId, method: DeliveryMethod | null): number {
+  if (method === 'retiro') {
+    return { entrega: 0, datos: 1, direccion: 1, resumen: 2 }[step] ?? 0
+  }
+  return { entrega: 0, datos: 1, direccion: 2, resumen: 3 }[step] ?? 0
+}
+
 // ── Progress bar ─────────────────────────────────────────
-function IriProgress({ step }: { step: number }) {
-  const steps = [{ label: 'Datos' }, { label: 'Envío' }, { label: 'Resumen' }]
+function IriProgress({ step, method }: { step: StepId; method: DeliveryMethod | null }) {
+  const labels    = getProgressLabels(method)
+  const activeIdx = getStepIndex(step, method)
+
   return (
     <div className="px-[22px] pt-5 pb-6 bg-ir-cream">
       <div className="flex gap-2 items-center">
-        {steps.map((s, i) => {
-          const active = i === step
-          const done   = i < step
+        {labels.map((label, i) => {
+          const active = i === activeIdx
+          const done   = i < activeIdx
           return (
-            <div key={i} className="contents">
+            <div key={label} className="contents">
               <div className="flex items-center gap-2" style={{ opacity: active || done ? 1 : 0.4 }}>
                 <span
                   className="grid place-items-center font-serif italic"
@@ -53,13 +71,13 @@ function IriProgress({ step }: { step: number }) {
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  {s.label}
+                  {label}
                 </span>
               </div>
-              {i < steps.length - 1 && (
+              {i < labels.length - 1 && (
                 <span
                   className="flex-1 h-px"
-                  style={{ background: i < step ? 'var(--ir-ink)' : 'var(--ir-line)' }}
+                  style={{ background: i < activeIdx ? 'var(--ir-ink)' : 'var(--ir-line)' }}
                 />
               )}
             </div>
@@ -128,12 +146,54 @@ function PrimaryBtn({
   )
 }
 
+// ── Delivery method radio card ────────────────────────────
+function DeliveryCard({
+  selected, onClick, title, subtitle, price,
+}: {
+  selected: boolean
+  onClick: () => void
+  title: string
+  subtitle: string
+  price: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'grid items-center gap-3 px-4 py-4 rounded-ir-lg border text-left transition-colors w-full',
+        selected ? 'border-ir-ink bg-ir-paper' : 'border-ir-line bg-ir-cream hover:border-ir-tan',
+      )}
+      style={{ gridTemplateColumns: '20px 1fr auto' }}
+    >
+      <span
+        className="grid place-items-center shrink-0"
+        style={{
+          width: 16, height: 16, borderRadius: 999,
+          border: '1.5px solid var(--ir-ink)',
+          background: selected ? 'var(--ir-ink)' : 'transparent',
+        }}
+      >
+        {selected && (
+          <span className="block rounded-full bg-ir-cream" style={{ width: 6, height: 6 }} />
+        )}
+      </span>
+      <span>
+        <span className="block font-serif text-[16px]">{title}</span>
+        <span className="text-[11px] text-ir-mute">{subtitle}</span>
+      </span>
+      <span className="font-serif italic text-ir-gold text-[15px]">{price}</span>
+    </button>
+  )
+}
+
 // ── Main component ────────────────────────────────────────
 export default function CheckoutClient() {
-  const router  = useRouter()
-  const { items } = useCartStore()
+  const router      = useRouter()
+  const { items }   = useCartStore()
 
-  const [step, setStep]     = useState(0)
+  const [step,           setStep]           = useState<StepId>('entrega')
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod | null>(null)
   const [customer, setCustomer] = useState({
     email: '', nombre: '', apellido: '',
     telefono: '', dni: '', newsletter: true,
@@ -150,9 +210,32 @@ export default function CheckoutClient() {
     if (mounted && items.length === 0) router.replace('/tienda')
   }, [mounted, items.length, router])
 
-  const subtotal  = items.reduce((s, i) => s + (i.variant?.price ?? i.product.price ?? 0) * i.quantity, 0)
-  const total     = subtotal + SHIPPING
-  const itemCount = items.reduce((s, i) => s + i.quantity, 0)
+  const needsShipping = deliveryMethod === 'envio'
+  const subtotal      = items.reduce((s, i) => s + (i.variant?.price ?? i.product.price ?? 0) * i.quantity, 0)
+  const shipping      = needsShipping ? SHIPPING : 0
+  const total         = subtotal + shipping
+  const itemCount     = items.reduce((s, i) => s + i.quantity, 0)
+
+  function goNext() {
+    setStep(prev => {
+      if (prev === 'entrega')  return 'datos'
+      if (prev === 'datos')    return needsShipping ? 'direccion' : 'resumen'
+      if (prev === 'direccion') return 'resumen'
+      return prev
+    })
+  }
+
+  function goBack() {
+    if (step === 'resumen')   { setStep(needsShipping ? 'direccion' : 'datos'); return }
+    if (step === 'direccion') { setStep('datos');    return }
+    if (step === 'datos')     { setStep('entrega');  return }
+    router.back()
+  }
+
+  function handleDeliverySelect(method: DeliveryMethod) {
+    setDeliveryMethod(method)
+    if (method === 'retiro') setAddress({ calle: '', piso: '', cp: '', notas: '' })
+  }
 
   function handleCustomer(e: ChangeEvent<HTMLInputElement>) {
     const { name, value, type, checked } = e.target
@@ -168,6 +251,10 @@ export default function CheckoutClient() {
     setLoading(true)
     setError(null)
     try {
+      const direccion = needsShipping
+        ? `${address.calle}${address.piso ? `, ${address.piso}` : ''}, ${address.cp} Esperanza, Santa Fe`
+        : 'Retiro en local'
+
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -178,7 +265,7 @@ export default function CheckoutClient() {
             apellido:  customer.apellido,
             email:     customer.email,
             telefono:  customer.telefono,
-            direccion: `${address.calle}${address.piso ? `, ${address.piso}` : ''}, ${address.cp} Esperanza, Santa Fe`,
+            direccion,
           },
         }),
       })
@@ -199,14 +286,18 @@ export default function CheckoutClient() {
       const price = i.variant?.price ?? i.product.price ?? 0
       return `• ${i.product.name}${i.variant ? ` (${i.variant.name})` : ''} ×${i.quantity} = ${formatPrice(price * i.quantity)}`
     })
+    const deliveryLine = needsShipping
+      ? `Envío a: ${address.calle}${address.piso ? `, ${address.piso}` : ''}, ${address.cp} Esperanza, SF`
+      : 'Entrega: Retiro en local (coordinamos por WA)'
+
     const msg = [
       'Hola! Quiero hacer un pedido:',
       ...lines,
       `Subtotal: ${formatPrice(subtotal)}`,
-      `Envío: ${formatPrice(SHIPPING)}`,
+      needsShipping ? `Envío: ${formatPrice(SHIPPING)}` : 'Envío: Gratis (retiro en local)',
       `Total: ${formatPrice(total)}`,
       '',
-      `Envío a: ${address.calle}${address.piso ? `, ${address.piso}` : ''}, ${address.cp} Esperanza, SF`,
+      deliveryLine,
       `Nombre: ${customer.nombre} ${customer.apellido}`,
       `Tel: ${customer.telefono}`,
     ].join('\n')
@@ -220,16 +311,58 @@ export default function CheckoutClient() {
 
   return (
     <div className="min-h-screen bg-ir-cream flex flex-col">
-      <IriProgress step={step} />
+      <IriProgress step={step} method={deliveryMethod} />
       <div className="border-b border-ir-line" />
 
       <div className="flex-1 px-[22px] pb-10">
         <AnimatePresence mode="wait" initial={false}>
 
-          {/* ── Step 0 — Datos ── */}
-          {step === 0 && (
+          {/* ── Step: entrega ── */}
+          {step === 'entrega' && (
             <motion.div
-              key="step0"
+              key="entrega"
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="pt-5 pb-1">
+                <h1 className="font-serif font-normal m-0" style={{ fontSize: 30, lineHeight: 1 }}>
+                  ¿Cómo lo <em className="italic text-ir-gold">recibís?</em>
+                </h1>
+                <p className="font-sans text-[12px] text-ir-mute mt-1.5 m-0">
+                  Elegí cómo querés recibir tu pedido.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3 mt-5">
+                <DeliveryCard
+                  selected={deliveryMethod === 'envio'}
+                  onClick={() => handleDeliverySelect('envio')}
+                  title="Envío a domicilio"
+                  subtitle="Esperanza, Santa Fe · 24-48 hs"
+                  price={formatPrice(SHIPPING)}
+                />
+                <DeliveryCard
+                  selected={deliveryMethod === 'retiro'}
+                  onClick={() => handleDeliverySelect('retiro')}
+                  title="Retiro en local"
+                  subtitle="Esperanza, Santa Fe · coordinamos por WA"
+                  price="Gratis"
+                />
+              </div>
+
+              <PrimaryBtn onClick={goNext} disabled={!deliveryMethod}>
+                Continuar →
+              </PrimaryBtn>
+              <BackBtn onClick={goBack}>← Volver al carrito</BackBtn>
+            </motion.div>
+          )}
+
+          {/* ── Step: datos ── */}
+          {step === 'datos' && (
+            <motion.div
+              key="datos"
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -24 }}
@@ -307,17 +440,17 @@ export default function CheckoutClient() {
                 </label>
               </div>
 
-              <PrimaryBtn onClick={() => setStep(1)} disabled={!step1Valid}>
-                Continuar al envío →
+              <PrimaryBtn onClick={goNext} disabled={!step1Valid}>
+                {needsShipping ? 'Continuar al envío →' : 'Revisar pedido →'}
               </PrimaryBtn>
-              <BackBtn onClick={() => router.back()}>← Volver al carrito</BackBtn>
+              <BackBtn onClick={goBack}>← Volver</BackBtn>
             </motion.div>
           )}
 
-          {/* ── Step 1 — Envío ── */}
-          {step === 1 && (
+          {/* ── Step: direccion (solo envio) ── */}
+          {step === 'direccion' && (
             <motion.div
-              key="step1"
+              key="direccion"
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -24 }}
@@ -330,32 +463,6 @@ export default function CheckoutClient() {
                 <p className="font-sans text-[12px] text-ir-mute mt-1.5 m-0">
                   Te avisamos por WhatsApp en cada paso.
                 </p>
-              </div>
-
-              <div className="mt-5">
-                <IriEyebrow className="mb-2.5">Método de envío</IriEyebrow>
-                <div
-                  className="grid items-center gap-3 px-4 py-3.5 rounded-ir-lg border border-ir-ink bg-ir-paper"
-                  style={{ gridTemplateColumns: '20px 1fr auto' }}
-                >
-                  <span
-                    className="grid place-items-center shrink-0"
-                    style={{
-                      width: 16, height: 16, borderRadius: 999,
-                      border: '1.5px solid var(--ir-ink)',
-                      background: 'var(--ir-ink)',
-                    }}
-                  >
-                    <span className="block rounded-full bg-ir-cream" style={{ width: 6, height: 6 }} />
-                  </span>
-                  <span>
-                    <span className="block font-serif text-[16px]">Envío local</span>
-                    <span className="text-[11px] text-ir-mute">Esperanza, Santa Fe · 24-48 hs</span>
-                  </span>
-                  <span className="font-serif italic text-ir-gold text-[15px]">
-                    {formatPrice(SHIPPING)}
-                  </span>
-                </div>
               </div>
 
               <div className="mt-6">
@@ -423,17 +530,17 @@ export default function CheckoutClient() {
                 </div>
               </div>
 
-              <PrimaryBtn onClick={() => setStep(2)} disabled={!step2Valid}>
+              <PrimaryBtn onClick={goNext} disabled={!step2Valid}>
                 Revisar pedido →
               </PrimaryBtn>
-              <BackBtn onClick={() => setStep(0)}>← Volver</BackBtn>
+              <BackBtn onClick={goBack}>← Volver</BackBtn>
             </motion.div>
           )}
 
-          {/* ── Step 2 — Resumen ── */}
-          {step === 2 && (
+          {/* ── Step: resumen ── */}
+          {step === 'resumen' && (
             <motion.div
-              key="step2"
+              key="resumen"
               initial={{ opacity: 0, x: 24 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -24 }}
@@ -455,10 +562,10 @@ export default function CheckoutClient() {
                 </IriEyebrow>
                 <div className="bg-white border border-ir-line rounded-ir-lg overflow-hidden">
                   {items.map((item, i) => {
-                    const price   = item.variant?.price ?? item.product.price ?? 0
-                    const kind    = categoryToKind[item.product.category] ?? 'notebook'
-                    const tone    = categoryToTone[item.product.category] ?? 'cream'
-                    const hasImg  = !!item.product.images?.[0]
+                    const price  = item.variant?.price ?? item.product.price ?? 0
+                    const kind   = categoryToKind[item.product.category] ?? 'notebook'
+                    const tone   = categoryToTone[item.product.category] ?? 'cream'
+                    const hasImg = !!item.product.images?.[0]
                     return (
                       <div
                         key={item.id}
@@ -499,30 +606,35 @@ export default function CheckoutClient() {
               </div>
 
               {/* Address + method cards */}
-              <div className="grid grid-cols-2 gap-2.5 mt-4">
-                <div className="p-3.5 border border-ir-line rounded-ir-lg">
-                  <IriEyebrow className="mb-1.5">Envío a</IriEyebrow>
-                  <div className="font-serif text-[13px] leading-snug">
-                    {address.calle}{address.piso ? `, ${address.piso}` : ''}<br />
-                    {address.cp} · Esperanza, Santa Fe
+              <div className={cn('gap-2.5 mt-4', needsShipping ? 'grid grid-cols-2' : 'flex')}>
+                {needsShipping && (
+                  <div className="p-3.5 border border-ir-line rounded-ir-lg">
+                    <IriEyebrow className="mb-1.5">Envío a</IriEyebrow>
+                    <div className="font-serif text-[13px] leading-snug">
+                      {address.calle}{address.piso ? `, ${address.piso}` : ''}<br />
+                      {address.cp} · Esperanza, Santa Fe
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setStep('direccion')}
+                      className="block bg-transparent border-0 p-0 mt-1.5 font-sans text-[10px] text-ir-gold tracking-[0.14em] uppercase cursor-pointer"
+                    >
+                      cambiar
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setStep(1)}
-                    className="block bg-transparent border-0 p-0 mt-1.5 font-sans text-[10px] text-ir-gold tracking-[0.14em] uppercase cursor-pointer"
-                  >
-                    cambiar
-                  </button>
-                </div>
-                <div className="p-3.5 border border-ir-line rounded-ir-lg">
+                )}
+                <div className="p-3.5 border border-ir-line rounded-ir-lg flex-1">
                   <IriEyebrow className="mb-1.5">Método</IriEyebrow>
                   <div className="font-serif text-[13px] leading-snug">
-                    Envío local<br />
-                    <span className="italic text-ir-mute">24-48 hs</span>
+                    {needsShipping ? (
+                      <>Envío local<br /><span className="italic text-ir-mute">24-48 hs</span></>
+                    ) : (
+                      <>Retiro en local<br /><span className="italic text-ir-mute">coordinamos por WA</span></>
+                    )}
                   </div>
                   <button
                     type="button"
-                    onClick={() => setStep(1)}
+                    onClick={() => setStep('entrega')}
                     className="block bg-transparent border-0 p-0 mt-1.5 font-sans text-[10px] text-ir-gold tracking-[0.14em] uppercase cursor-pointer"
                   >
                     cambiar
@@ -536,7 +648,8 @@ export default function CheckoutClient() {
                   <span>Subtotal</span><span>{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between py-0.5 text-[13px] font-sans text-ir-mute">
-                  <span>Envío</span><span>{formatPrice(SHIPPING)}</span>
+                  <span>Envío</span>
+                  <span>{needsShipping ? formatPrice(SHIPPING) : 'Gratis'}</span>
                 </div>
                 <div className="flex items-baseline justify-between mt-2.5">
                   <span className="font-serif italic text-[18px]">Total</span>
@@ -593,14 +706,14 @@ export default function CheckoutClient() {
                 Enviar pedido por WhatsApp
               </a>
               <p className="text-center mt-2.5 font-serif italic text-[11px] text-ir-mute m-0">
-                Coordinamos pago y envío directo por chat
+                Coordinamos pago y {needsShipping ? 'envío' : 'retiro'} directo por chat
               </p>
 
               <p className="text-center mt-3.5 font-sans text-[10px] text-ir-mute tracking-[0.12em] uppercase m-0">
                 Pago protegido · Tus datos no se comparten
               </p>
 
-              <BackBtn onClick={() => setStep(1)}>← Volver</BackBtn>
+              <BackBtn onClick={goBack}>← Volver</BackBtn>
             </motion.div>
           )}
 
