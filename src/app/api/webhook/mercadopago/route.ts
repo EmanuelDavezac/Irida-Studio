@@ -5,20 +5,25 @@ import { Resend } from 'resend'
 import { prisma } from '@/lib/prisma'
 
 // ── Signature validation ──────────────────────────────────────────────────────
+// Only validates when x-signature header IS present (dashboard webhooks).
+// IPN notifications via notification_url don't include the header — allowed through.
 
 function validateSignature(
   req: NextRequest,
   dataId: string | number | undefined,
 ): boolean {
+  const sigHeader = req.headers.get('x-signature')
+
+  // IPN / notification_url calls don't include x-signature — skip validation
+  if (!sigHeader) return true
+
   const secret = process.env.MP_WEBHOOK_SECRET
   if (!secret) {
-    console.warn('[Webhook] MP_WEBHOOK_SECRET not set — skipping signature check')
+    console.warn('[Webhook] x-signature present but MP_WEBHOOK_SECRET not set')
     return true
   }
 
-  const sigHeader = req.headers.get('x-signature')
-  const requestId = req.headers.get('x-request-id')
-  if (!sigHeader || !requestId) return false
+  const requestId = req.headers.get('x-request-id') ?? ''
 
   const parts: Record<string, string> = {}
   for (const chunk of sigHeader.split(',')) {
@@ -27,11 +32,20 @@ function validateSignature(
   }
 
   const { ts, v1 } = parts
-  if (!ts || !v1) return false
+  if (!ts || !v1) {
+    console.error('[Webhook] Malformed x-signature header:', sigHeader)
+    return false
+  }
 
   const manifest = `id:${dataId};request-id:${requestId};ts:${ts}`
   const expected = createHmac('sha256', secret).update(manifest).digest('hex')
-  return expected === v1
+
+  if (expected !== v1) {
+    console.error('[Webhook] Signature mismatch — possible replay attack or wrong secret')
+    return false
+  }
+
+  return true
 }
 
 // ── Email ─────────────────────────────────────────────────────────────────────
@@ -139,10 +153,7 @@ async function sendConfirmationEmail(order: {
 // ── Route handler ─────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  // MP sends data both in the JSON body and as query params — read both
   const url = new URL(req.url)
-  const queryType = url.searchParams.get('type')
-  const queryDataId = url.searchParams.get('data.id')
 
   let body: {
     type?: string
@@ -156,19 +167,39 @@ export async function POST(req: NextRequest) {
     body = {}
   }
 
-  const eventType = body.type ?? queryType
+  // MP sends notifications in 3 formats:
+  // 1. Dashboard webhook (new): JSON body { type, data.id } + x-signature header
+  // 2. notification_url IPN (new): query ?type=payment&data.id=<id>, no signature
+  // 3. notification_url IPN (old): query ?topic=payment&id=<id>, no signature
+  const eventType =
+    body.type ??
+    url.searchParams.get('type') ??
+    (url.searchParams.get('topic') === 'payment' ? 'payment' : null)
+
+  const paymentId =
+    body.data?.id ??
+    url.searchParams.get('data.id') ??
+    url.searchParams.get('id')
+
+  console.log('[Webhook] Received', {
+    eventType,
+    paymentId,
+    hasSignature: !!req.headers.get('x-signature'),
+    url: url.pathname + url.search,
+  })
+
   if (eventType !== 'payment') {
+    console.log('[Webhook] Non-payment event, ignoring:', eventType)
     return NextResponse.json({ ok: true }, { status: 200 })
   }
 
-  // Prefer body id over query param (body is more reliable for signature validation)
-  const paymentId = body.data?.id ?? queryDataId
   if (!paymentId) {
+    console.error('[Webhook] No payment ID found in request')
     return NextResponse.json({ ok: true }, { status: 200 })
   }
 
   if (!validateSignature(req, paymentId)) {
-    console.error('[Webhook] Invalid MP signature')
+    console.error('[Webhook] Signature validation failed')
     return NextResponse.json({ ok: true }, { status: 200 })
   }
 
@@ -177,7 +208,10 @@ export async function POST(req: NextRequest) {
     const paymentAPI = new Payment(mpClient)
     const payment = await paymentAPI.get({ id: Number(paymentId) })
 
+    console.log('[Webhook] Payment status:', payment.status, '| external_reference:', payment.external_reference)
+
     if (payment.status !== 'approved') {
+      console.log('[Webhook] Payment not approved, status:', payment.status)
       return NextResponse.json({ ok: true }, { status: 200 })
     }
 
@@ -189,12 +223,12 @@ export async function POST(req: NextRequest) {
 
     const existing = await prisma.order.findUnique({ where: { id: orderId } })
     if (!existing) {
-      console.error('[Webhook] Order not found:', orderId)
+      console.error('[Webhook] Order not found in DB:', orderId)
       return NextResponse.json({ ok: true }, { status: 200 })
     }
 
-    // Idempotency: skip if already paid
     if (existing.status === 'PAID') {
+      console.log('[Webhook] Order already PAID, idempotent skip:', orderId)
       return NextResponse.json({ ok: true }, { status: 200 })
     }
 
@@ -209,9 +243,11 @@ export async function POST(req: NextRequest) {
       include: { OrderItem: true },
     })
 
-    // Send email — non-blocking failure
+    console.log('[Webhook] Order updated to PAID:', orderId)
+
     try {
       await sendConfirmationEmail(updated)
+      console.log('[Webhook] Confirmation email sent to:', updated.buyerEmail)
     } catch (emailErr) {
       console.error('[Webhook] Email send failed:', emailErr)
     }
