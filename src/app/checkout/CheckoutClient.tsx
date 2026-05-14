@@ -252,7 +252,7 @@ export default function CheckoutClient() {
     setError(null)
     try {
       const direccion = needsShipping
-        ? `${address.calle}${address.piso ? `, ${address.piso}` : ''}, ${address.cp} Esperanza, Santa Fe`
+        ? `${address.calle}${address.piso ? `, ${address.piso}` : ''}`
         : 'Retiro en local'
 
       const res = await fetch('/api/checkout', {
@@ -266,7 +266,16 @@ export default function CheckoutClient() {
             email:     customer.email,
             telefono:  customer.telefono,
             direccion,
+            ciudad:    'Esperanza',
+            provincia: 'Santa Fe',
+            cp:        needsShipping ? address.cp : '3080',
           },
+          delivery: {
+            method:       deliveryMethod ?? 'retiro',
+            shippingCost: shipping,
+          },
+          subtotal,
+          total,
         }),
       })
       if (!res.ok) {
