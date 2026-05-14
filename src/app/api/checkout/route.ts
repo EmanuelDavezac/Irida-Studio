@@ -119,6 +119,7 @@ export async function POST(req: NextRequest) {
   }
 
   const base = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000'
+  const webhookUrl = 'https://irida-studio-rg38.vercel.app/api/webhook/mercadopago'
 
   try {
     const client = new MercadoPago({ accessToken: process.env.MP_ACCESS_TOKEN })
@@ -145,6 +146,7 @@ export async function POST(req: NextRequest) {
         },
         auto_return: 'approved',
         statement_descriptor: 'IRIDA STUDIO',
+        notification_url: webhookUrl,
         external_reference: orderId,
       },
     })

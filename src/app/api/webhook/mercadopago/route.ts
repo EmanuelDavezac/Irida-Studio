@@ -139,6 +139,11 @@ async function sendConfirmationEmail(order: {
 // ── Route handler ─────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  // MP sends data both in the JSON body and as query params — read both
+  const url = new URL(req.url)
+  const queryType = url.searchParams.get('type')
+  const queryDataId = url.searchParams.get('data.id')
+
   let body: {
     type?: string
     action?: string
@@ -148,15 +153,16 @@ export async function POST(req: NextRequest) {
   try {
     body = await req.json()
   } catch {
+    body = {}
+  }
+
+  const eventType = body.type ?? queryType
+  if (eventType !== 'payment') {
     return NextResponse.json({ ok: true }, { status: 200 })
   }
 
-  // Respond 200 immediately on non-payment events
-  if (body.type !== 'payment') {
-    return NextResponse.json({ ok: true }, { status: 200 })
-  }
-
-  const paymentId = body.data?.id
+  // Prefer body id over query param (body is more reliable for signature validation)
+  const paymentId = body.data?.id ?? queryDataId
   if (!paymentId) {
     return NextResponse.json({ ok: true }, { status: 200 })
   }
