@@ -150,7 +150,13 @@ async function sendConfirmationEmail(order: {
 </body>
 </html>`
 
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    throw new Error('EMAIL_USER o EMAIL_PASS no configurados en variables de entorno')
+  }
+
   const transporter = createTransport()
+
+  console.log('--- Intentando enviar mail a:', order.buyerEmail)
 
   const info = await transporter.sendMail({
     from: `"Irida Studio" <${process.env.EMAIL_USER}>`,
@@ -159,7 +165,7 @@ async function sendConfirmationEmail(order: {
     html,
   })
 
-  console.log('[Email] Sent successfully, messageId:', info.messageId, '| to:', order.buyerEmail)
+  console.log('--- Mail enviado con éxito, messageId:', info.messageId)
 }
 
 // ── Route handler ─────────────────────────────────────────────────────────────
@@ -262,7 +268,8 @@ export async function POST(req: NextRequest) {
       await sendConfirmationEmail(updated)
       console.log('[Webhook] Confirmation email sent to:', updated.buyerEmail)
     } catch (emailErr) {
-      console.error('[Webhook] Email send failed:', emailErr)
+      console.error('[Webhook] Email send failed — mensaje:', (emailErr as Error).message)
+      console.error('[Webhook] Email send failed — stack:', (emailErr as Error).stack)
     }
   } catch (err) {
     console.error('[Webhook] Processing error:', err)
