@@ -156,6 +156,7 @@ async function sendConfirmationEmail(order: {
 
   const transporter = createTransport()
 
+  // ── Mail al cliente ──────────────────────────────────────
   console.log('--- Intentando enviar mail a:', order.buyerEmail)
 
   const info = await transporter.sendMail({
@@ -165,7 +166,63 @@ async function sendConfirmationEmail(order: {
     html,
   })
 
-  console.log('--- Mail enviado con éxito, messageId:', info.messageId)
+  console.log('--- Mail cliente enviado, messageId:', info.messageId)
+
+  // ── Notificación al admin ─────────────────────────────────
+  const adminEmail = process.env.ADMIN_NOTIFY_EMAIL
+  if (adminEmail) {
+    const adminUrl = 'https://irida-studio-rg38.vercel.app/admin/pedidos'
+
+    const itemLines = order.OrderItem.map(
+      (i) => `<tr>
+        <td style="padding:5px 12px;border-bottom:1px solid #f0ece6">${i.productName}${i.variantName ? ` — ${i.variantName}` : ''}</td>
+        <td style="padding:5px 12px;border-bottom:1px solid #f0ece6;text-align:center">×${i.quantity}</td>
+        <td style="padding:5px 12px;border-bottom:1px solid #f0ece6;text-align:right">$${i.total.toLocaleString('es-AR')}</td>
+      </tr>`,
+    ).join('')
+
+    const adminHtml = `
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;font-family:sans-serif">
+  <div style="max-width:560px;margin:24px auto">
+    <h2>¡Nueva venta en Irida Studio! 🚀</h2>
+    <p><strong>Cliente:</strong> ${order.buyerName}</p>
+    <p><strong>Contacto:</strong> ${order.buyerEmail} | ${order.buyerPhone}</p>
+    <hr />
+    <table style="width:100%;border-collapse:collapse">
+      <thead>
+        <tr style="background-color:#f8f8f8">
+          <th style="text-align:left;padding:10px">Producto</th>
+          <th style="text-align:center;padding:10px">Cant.</th>
+          <th style="text-align:right;padding:10px">Total</th>
+        </tr>
+      </thead>
+      <tbody>${itemLines}</tbody>
+    </table>
+    <h3 style="text-align:right">Total: $${order.total.toLocaleString('es-AR')}</h3>
+    <div style="text-align:center;margin-top:30px">
+      <a href="${adminUrl}"
+         style="background-color:#000;color:#fff;padding:12px 25px;text-decoration:none;border-radius:5px">
+        Ver Pedidos en el Panel
+      </a>
+    </div>
+  </div>
+</body>
+</html>`
+
+    const adminInfo = await transporter.sendMail({
+      from: `"Irida Studio" <${process.env.EMAIL_USER}>`,
+      to: adminEmail,
+      subject: `🛍️ Nuevo pedido #${order.number} — $${order.total.toLocaleString('es-AR')}`,
+      html: adminHtml,
+    })
+
+    console.log('--- Mail admin enviado, messageId:', adminInfo.messageId)
+  } else {
+    console.warn('[Email] ADMIN_NOTIFY_EMAIL no configurado — omitiendo notificación admin')
+  }
 }
 
 // ── Route handler ─────────────────────────────────────────────────────────────
