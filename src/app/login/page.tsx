@@ -19,8 +19,10 @@ export default function LoginPage() {
     if (result?.error) {
       setError(result.error)
       setLoading(false)
+    } else if (result?.ok) {
+      // Hard navigate — avoids Next.js client-side router issues on mobile
+      window.location.href = '/admin'
     }
-    // si no hay error, signIn redirigió a /admin automáticamente
   }
 
   return (
