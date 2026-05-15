@@ -9,7 +9,7 @@ interface Props {
 export default async function EditarProductoPage({ params }: Props) {
   const { id } = await params
   const [product, categories] = await Promise.all([
-    prisma.product.findUnique({ where: { id }, include: { variants: true } }),
+    prisma.product.findUnique({ where: { id } }),
     prisma.category.findMany({ orderBy: { createdAt: 'asc' } }),
   ])
   if (!product) notFound()
@@ -29,7 +29,6 @@ export default async function EditarProductoPage({ params }: Props) {
           images: product.images,
           featured: product.featured,
           inStock: product.inStock,
-          variants: product.variants,
         }}
       />
     </div>

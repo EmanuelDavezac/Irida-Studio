@@ -2,12 +2,7 @@
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { X, Upload, Plus } from 'lucide-react'
-
-interface Variant {
-  name: string
-  price: string
-}
+import { X, Upload } from 'lucide-react'
 
 interface CategoryOption {
   id: string
@@ -27,7 +22,6 @@ interface Props {
     images: string[]
     featured: boolean
     inStock: boolean
-    variants: { name: string; price: number | null }[]
   }
 }
 
@@ -44,9 +38,6 @@ export default function ProductForm({ initial, categories }: Props) {
   const [images, setImages] = useState<string[]>(initial?.images ?? [])
   const [featured, setFeatured] = useState(initial?.featured ?? false)
   const [inStock, setInStock] = useState(initial?.inStock ?? true)
-  const [variants, setVariants] = useState<Variant[]>(
-    initial?.variants.map((v) => ({ name: v.name, price: v.price?.toString() ?? '' })) ?? []
-  )
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -55,12 +46,21 @@ export default function ProductForm({ initial, categories }: Props) {
     const files = Array.from(e.target.files ?? [])
     if (!files.length) return
     setUploading(true)
+    setError('')
     for (const file of files) {
-      const fd = new FormData()
-      fd.append('file', file)
-      const res = await fetch('/api/upload', { method: 'POST', body: fd })
-      const data = await res.json()
-      if (data.url) setImages((prev) => [...prev, data.url])
+      try {
+        const fd = new FormData()
+        fd.append('file', file)
+        const res = await fetch('/api/upload', { method: 'POST', body: fd })
+        const data = await res.json() as { url?: string; error?: string }
+        if (!res.ok || !data.url) {
+          setError(`Error subiendo "${file.name}": ${data.error ?? `HTTP ${res.status}`}`)
+          continue
+        }
+        setImages((prev) => [...prev, data.url!])
+      } catch (err) {
+        setError(`Error de red subiendo "${file.name}": ${err instanceof Error ? err.message : String(err)}`)
+      }
     }
     setUploading(false)
     if (fileRef.current) fileRef.current.value = ''
@@ -68,18 +68,6 @@ export default function ProductForm({ initial, categories }: Props) {
 
   function removeImage(url: string) {
     setImages((prev) => prev.filter((u) => u !== url))
-  }
-
-  function addVariant() {
-    setVariants((prev) => [...prev, { name: '', price: '' }])
-  }
-
-  function updateVariant(i: number, field: keyof Variant, value: string) {
-    setVariants((prev) => prev.map((v, idx) => (idx === i ? { ...v, [field]: value } : v)))
-  }
-
-  function removeVariant(i: number) {
-    setVariants((prev) => prev.filter((_, idx) => idx !== i))
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -96,7 +84,6 @@ export default function ProductForm({ initial, categories }: Props) {
       images,
       featured,
       inStock,
-      variants: variants.filter((v) => v.name).map((v) => ({ name: v.name, price: v.price || null })),
     }
 
     const url = isEdit ? `/api/admin/productos/${initial.id}` : '/api/admin/productos'
@@ -245,49 +232,7 @@ export default function ProductForm({ initial, categories }: Props) {
         />
       </div>
 
-      {/* Variants */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <label className="font-sans text-xs text-muted-foreground">
-            Variantes <span className="text-xs">(opcional — ej: talle, color)</span>
-          </label>
-          <button
-            type="button"
-            onClick={addVariant}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Plus className="h-3 w-3" /> Agregar
-          </button>
-        </div>
-        <div className="space-y-2">
-          {variants.map((v, i) => (
-            <div key={i} className="flex gap-2 items-center">
-              <input
-                value={v.name}
-                onChange={(e) => updateVariant(i, 'name', e.target.value)}
-                placeholder="Nombre (ej: Talle S)"
-                className="flex-1 border border-border rounded-lg px-3 py-1.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-              <input
-                type="number"
-                value={v.price}
-                onChange={(e) => updateVariant(i, 'price', e.target.value)}
-                placeholder="Precio (opcional)"
-                className="w-32 border border-border rounded-lg px-3 py-1.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-primary"
-              />
-              <button
-                type="button"
-                onClick={() => removeVariant(i)}
-                className="text-muted-foreground hover:text-red-500 transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error &&<p className="text-sm text-red-500">{error}</p>}
 
       <div className="flex gap-3 pt-2">
         <Button type="submit" disabled={saving}>
