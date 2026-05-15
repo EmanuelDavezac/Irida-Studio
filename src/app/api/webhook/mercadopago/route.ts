@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createHmac } from 'crypto'
 import MercadoPago, { Payment } from 'mercadopago'
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 import { prisma } from '@/lib/prisma'
 
 // ── Signature validation ──────────────────────────────────────────────────────
@@ -50,7 +50,15 @@ function validateSignature(
 
 // ── Email ─────────────────────────────────────────────────────────────────────
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+function createTransport() {
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  })
+}
 
 async function sendConfirmationEmail(order: {
   number: string
@@ -142,12 +150,16 @@ async function sendConfirmationEmail(order: {
 </body>
 </html>`
 
-  await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL ?? 'Irida Studio <onboarding@resend.dev>',
+  const transporter = createTransport()
+
+  const info = await transporter.sendMail({
+    from: `"Irida Studio" <${process.env.EMAIL_USER}>`,
     to: order.buyerEmail,
     subject: `Pedido confirmado #${order.number} — Irida Studio ✓`,
     html,
   })
+
+  console.log('[Email] Sent successfully, messageId:', info.messageId, '| to:', order.buyerEmail)
 }
 
 // ── Route handler ─────────────────────────────────────────────────────────────
