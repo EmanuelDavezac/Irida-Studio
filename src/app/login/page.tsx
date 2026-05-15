@@ -14,7 +14,7 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
-    const result = await loginAction(email, password)
+    const result = await loginAction(email.toLowerCase().trim(), password)
 
     if (result?.error) {
       setError(result.error)

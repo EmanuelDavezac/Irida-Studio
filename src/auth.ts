@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true,
   session: { strategy: 'jwt' },
   pages: { signIn: '/login' },
   providers: [
@@ -13,12 +14,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: 'Contraseña', type: 'password' },
       },
       async authorize(credentials) {
-        const email = credentials?.email as string
+        const email = (credentials?.email as string)?.toLowerCase().trim()
         const password = credentials?.password as string
         if (!email || !password) return null
 
         if (
-          email === process.env.ADMIN_EMAIL &&
+          email === process.env.ADMIN_EMAIL?.toLowerCase().trim() &&
           password === process.env.ADMIN_PASSWORD
         ) {
           return { id: 'admin', email, role: 'ADMIN' }
