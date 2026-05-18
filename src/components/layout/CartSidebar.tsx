@@ -9,7 +9,6 @@ import { formatPrice, cn } from '@/lib/utils'
 import IriEyebrow from '@/components/ui/IriEyebrow'
 import { ProductTile, type PlaceholderKind, type Tone } from '@/components/products/placeholders'
 
-const SHIPPING = 1500
 
 const categoryToKind: Record<string, PlaceholderKind> = {
   agenditas: 'agenda',    stickers: 'stickers', llaveros: 'keychain',
@@ -44,7 +43,7 @@ export default function CartSidebar() {
 
   const subtotal  = items.reduce((s, i) => s + (i.variant?.price ?? i.product.price ?? 0) * i.quantity, 0)
   const discount  = couponApplied ? Math.round(subtotal * 0.1) : 0
-  const total     = subtotal - discount + SHIPPING
+  const total     = subtotal - discount
   const itemCount = items.reduce((s, i) => s + i.quantity, 0)
 
   function handleApplyCoupon() {
@@ -265,7 +264,6 @@ export default function CartSidebar() {
                 {discount > 0 && (
                   <TotalsRow label="Descuento" value={`− ${formatPrice(discount)}`} muted />
                 )}
-                <TotalsRow label="Envío" value={formatPrice(SHIPPING)} muted />
 
                 <div className="border-t border-ir-line my-2.5" />
 

@@ -139,6 +139,16 @@ model WishlistItem {
   @@unique([userId, productId])
 }
 
+model Review {
+  id          String   @id @default(cuid())
+  productSlug String
+  name        String
+  rating      Int
+  comment     String
+  approved    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
 enum Role {
   ADMIN
   USER

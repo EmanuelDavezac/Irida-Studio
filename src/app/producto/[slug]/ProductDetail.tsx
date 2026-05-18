@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Product, Variant } from '@/types'
@@ -220,11 +220,6 @@ export default function ProductDetail({ product }: { product: Product }) {
               </span>
             )}
           </div>
-          {price > 0 && (
-            <span className="block text-[11px] text-ir-mute font-sans mt-1">
-              3 cuotas sin interés de {formatPrice(Math.round(price / 3))}
-            </span>
-          )}
 
           {/* Variants */}
           {product.variants && product.variants.length > 0 && (
@@ -461,7 +456,6 @@ function TabContent({ tab, product }: { tab: string; product: Product }) {
         >
           {[
             { label: 'Envío local · Esperanza (24-48 hs)', price: 1500 },
-            { label: 'Envío estándar (3-5 días)',           price: 2400 },
             { label: 'Retiro en showroom',                  price: 0    },
           ].map((row, i, arr) => (
             <div
@@ -477,9 +471,7 @@ function TabContent({ tab, product }: { tab: string; product: Product }) {
               </span>
             </div>
           ))}
-          <p className="text-[11px] text-ir-mute mt-3 m-0">
-            Devoluciones gratis los primeros 30 días.
-          </p>
+
         </motion.div>
       )}
 
@@ -490,22 +482,145 @@ function TabContent({ tab, product }: { tab: string; product: Product }) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
-          className="flex flex-col gap-3.5 text-[13px]"
         >
-          {[
-            { name: 'Sofía R.', comment: '"La calidad es increíble. El papel es divino, mejor que las japonesas."' },
-            { name: 'Mateo L.', comment: '"La compré en blush, llegó perfecta y bien empaquetada. Ya pedí dos más."' },
-          ].map(({ name, comment }) => (
-            <div key={name}>
-              <div className="flex items-center gap-2 mb-1">
-                <Stars2 value={5} size={11} />
-                <span className="font-sans font-medium text-ir-ink text-[13px]">{name}</span>
-              </div>
-              <p className="font-serif italic text-ir-ink-soft m-0">{comment}</p>
-            </div>
-          ))}
+          <ReviewsTab slug={product.slug} />
         </motion.div>
       )}
     </AnimatePresence>
+  )
+}
+
+type ReviewData = {
+  id: string
+  name: string
+  rating: number
+  comment: string
+  createdAt: string
+}
+
+function StarPicker({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const [hover, setHover] = useState(0)
+  return (
+    <span className="inline-flex gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => {
+        const active = (hover || value) > i
+        return (
+          <button
+            key={i}
+            type="button"
+            onMouseEnter={() => setHover(i + 1)}
+            onMouseLeave={() => setHover(0)}
+            onClick={() => onChange(i + 1)}
+            className="border-0 bg-transparent p-0 cursor-pointer text-ir-gold"
+          >
+            <svg width={18} height={18} viewBox="0 0 12 12"
+              fill={active ? 'currentColor' : 'transparent'}
+              stroke="currentColor" strokeWidth="0.8">
+              <path d="M 6 1 L 7.4 4.4 L 11 4.6 L 8.2 7 L 9.1 10.6 L 6 8.7 L 2.9 10.6 L 3.8 7 L 1 4.6 L 4.6 4.4 Z" />
+            </svg>
+          </button>
+        )
+      })}
+    </span>
+  )
+}
+
+function ReviewsTab({ slug }: { slug: string }) {
+  const [reviews, setReviews] = useState<ReviewData[]>([])
+  const [loading, setLoading] = useState(true)
+  const [name, setName] = useState('')
+  const [rating, setRating] = useState(5)
+  const [comment, setComment] = useState('')
+  const [sending, setSending] = useState(false)
+  const [sent, setSent] = useState(false)
+
+  useEffect(() => {
+    fetch(`/api/reviews?slug=${slug}`)
+      .then(r => r.json())
+      .then(data => { setReviews(data); setLoading(false) })
+  }, [slug])
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!name.trim() || !comment.trim()) return
+    setSending(true)
+    await fetch('/api/reviews', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productSlug: slug, name, rating, comment }),
+    })
+    setSending(false)
+    setSent(true)
+    setName('')
+    setComment('')
+    setRating(5)
+  }
+
+  return (
+    <div className="flex flex-col gap-4 text-[13px]">
+      {loading && (
+        <p className="font-serif italic text-ir-mute text-[13px] m-0">Cargando reseñas…</p>
+      )}
+
+      {!loading && reviews.length === 0 && (
+        <p className="font-serif italic text-ir-mute text-[13px] m-0">
+          Sé el primero en dejar una reseña.
+        </p>
+      )}
+
+      {reviews.map(r => (
+        <div key={r.id} className="border-b border-ir-line pb-3 last:border-0">
+          <div className="flex items-center gap-2 mb-1">
+            <Stars2 value={r.rating} size={11} />
+            <span className="font-sans font-medium text-ir-ink text-[13px]">{r.name}</span>
+          </div>
+          <p className="font-serif italic text-ir-ink-soft m-0">{r.comment}</p>
+        </div>
+      ))}
+
+      <div className="border-t border-ir-line pt-4 mt-1">
+        <p className="font-sans text-[11px] tracking-[0.15em] uppercase text-ir-mute mb-3 m-0">
+          Dejar una reseña
+        </p>
+
+        {sent ? (
+          <p className="font-serif italic text-ir-ink-soft text-[13px] m-0">
+            ¡Gracias! Tu reseña quedó pendiente de aprobación.
+          </p>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col gap-2.5">
+            <input
+              type="text"
+              placeholder="Tu nombre"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              maxLength={60}
+              required
+              className="w-full border border-ir-line rounded-ir px-3 py-2 font-sans text-[13px] text-ir-ink bg-transparent placeholder:text-ir-mute focus:outline-none focus:border-ir-ink transition-colors"
+            />
+            <div className="flex items-center gap-2">
+              <span className="font-sans text-[11px] text-ir-mute">Puntuación:</span>
+              <StarPicker value={rating} onChange={setRating} />
+            </div>
+            <textarea
+              placeholder="Contá tu experiencia con el producto…"
+              value={comment}
+              onChange={e => setComment(e.target.value)}
+              maxLength={1000}
+              required
+              rows={3}
+              className="w-full border border-ir-line rounded-ir px-3 py-2 font-sans text-[13px] text-ir-ink bg-transparent placeholder:text-ir-mute focus:outline-none focus:border-ir-ink transition-colors resize-none"
+            />
+            <button
+              type="submit"
+              disabled={sending}
+              className="self-start px-4 py-2 rounded-ir bg-ir-ink text-ir-paper font-sans text-[12px] tracking-[0.1em] uppercase disabled:opacity-50 hover:opacity-80 transition-opacity"
+            >
+              {sending ? 'Enviando…' : 'Enviar reseña'}
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
   )
 }

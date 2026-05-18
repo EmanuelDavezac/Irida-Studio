@@ -2,7 +2,7 @@ import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { signOut } from '@/auth'
-import { Package, Plus, LogOut, Tag, ShoppingBag } from 'lucide-react'
+import { Package, Plus, LogOut, Tag, ShoppingBag, Star } from 'lucide-react'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth()
@@ -43,6 +43,13 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             >
               <ShoppingBag className="h-4 w-4" />
               Pedidos
+            </Link>
+            <Link
+              href="/admin/resenas"
+              className="flex items-center gap-1.5 font-sans text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Star className="h-4 w-4" />
+              Reseñas
             </Link>
           </nav>
         </div>
