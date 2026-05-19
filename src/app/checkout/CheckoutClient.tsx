@@ -678,7 +678,7 @@ export default function CheckoutClient() {
                 type="button"
                 onClick={handlePay}
                 disabled={loading}
-                className="mt-5 w-full flex items-center justify-center gap-3 px-6 rounded-xl transition-all disabled:opacity-60 hover:brightness-95"
+                className="mt-5 w-full flex items-center justify-center gap-1.5 px-6 rounded-xl transition-all disabled:opacity-60 hover:brightness-95"
                 style={{ height: 64, background: '#00AEEF' }}
               >
                 {loading ? (
