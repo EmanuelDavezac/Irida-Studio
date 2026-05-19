@@ -19,7 +19,8 @@ interface Props {
 
 export default async function ExitoPage({ searchParams }: Props) {
   const { payment_id, merchant_order_id } = await searchParams
-  const orderRef = merchant_order_id ?? payment_id ?? null
+  const clean = (v?: string) => (v && v !== 'null' ? v : undefined)
+  const orderRef = clean(merchant_order_id) ?? clean(payment_id) ?? null
 
   return (
     <>

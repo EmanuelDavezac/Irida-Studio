@@ -86,7 +86,7 @@ export default function ContactoPage() {
                   Horario de atención
                 </p>
                 <p className="font-sans text-sm text-muted-foreground">
-                  Lunes a viernes, 9 a 18 hs
+                  Lunes a viernes, 8 a 20 hs
                 </p>
               </div>
             </div>

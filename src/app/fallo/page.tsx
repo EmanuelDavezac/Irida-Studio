@@ -52,7 +52,7 @@ export default async function FalloPage({ searchParams }: Props) {
         </h1>
         <p className="font-sans text-muted-foreground leading-relaxed mb-10">
           {msg.body}
-          {payment_id && (
+          {payment_id && payment_id !== 'null' && (
             <>
               {' '}
               <span className="text-xs block mt-2">

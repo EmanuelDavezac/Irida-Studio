@@ -678,18 +678,22 @@ export default function CheckoutClient() {
                 type="button"
                 onClick={handlePay}
                 disabled={loading}
-                className="mt-5 w-full flex items-center justify-center gap-2.5 rounded-pill text-white text-[14px] font-sans font-semibold tracking-[0.02em] transition-opacity disabled:opacity-60 bg-mp"
-                style={{ height: 52 }}
+                className="mt-5 w-full flex items-center justify-center gap-3 px-6 rounded-xl transition-all disabled:opacity-60 hover:brightness-95"
+                style={{ height: 64, background: '#00AEEF' }}
               >
                 {loading ? (
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span className="mx-auto w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
-                    <svg width="22" height="14" viewBox="0 0 22 14" fill="none">
-                      <ellipse cx="11" cy="7" rx="10" ry="6" fill="#fff"/>
-                      <path d="M 4 8 Q 7 5 11 7 Q 15 9 18 6" stroke="#009EE3" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
-                    </svg>
-                    Pagar con MercadoPago
+                    <span className="font-sans text-[15px] font-semibold text-white tracking-[0.01em]">
+                      Pagar con
+                    </span>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/logo-mp.png"
+                      alt="Mercado Pago"
+                      style={{ height: 36, width: 'auto' }}
+                    />
                   </>
                 )}
               </button>
