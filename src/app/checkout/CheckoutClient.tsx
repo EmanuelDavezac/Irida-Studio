@@ -15,13 +15,13 @@ type DeliveryMethod = 'envio' | 'retiro'
 type StepId = 'entrega' | 'datos' | 'direccion' | 'resumen'
 
 const categoryToKind: Record<string, PlaceholderKind> = {
-  agenditas: 'agenda',    stickers: 'stickers',  llaveros: 'keychain',
-  fotitos:   'fotitos',   cumpleanos: 'topper',  albumes: 'cuaderno',
-  emprendimiento: 'tag',  'a-pintar': 'notebook',
+  agenditas: 'agenda', stickers: 'stickers', llaveros: 'keychain',
+  fotitos: 'fotitos', cumpleanos: 'topper', albumes: 'cuaderno',
+  emprendimiento: 'tag', 'a-pintar': 'notebook',
 }
 const categoryToTone: Record<string, Tone> = {
   agenditas: 'beige', stickers: 'cream', llaveros: 'paper',
-  fotitos:   'beige', cumpleanos: 'paper', albumes: 'sage',
+  fotitos: 'beige', cumpleanos: 'paper', albumes: 'sage',
 }
 
 function getProgressLabels(method: DeliveryMethod | null) {
@@ -39,7 +39,7 @@ function getStepIndex(step: StepId, method: DeliveryMethod | null): number {
 
 // ── Progress bar ─────────────────────────────────────────
 function IriProgress({ step, method }: { step: StepId; method: DeliveryMethod | null }) {
-  const labels    = getProgressLabels(method)
+  const labels = getProgressLabels(method)
   const activeIdx = getStepIndex(step, method)
 
   return (
@@ -47,7 +47,7 @@ function IriProgress({ step, method }: { step: StepId; method: DeliveryMethod | 
       <div className="flex gap-2 items-center">
         {labels.map((label, i) => {
           const active = i === activeIdx
-          const done   = i < activeIdx
+          const done = i < activeIdx
           return (
             <div key={label} className="contents">
               <div className="flex items-center gap-2" style={{ opacity: active || done ? 1 : 0.4 }}>
@@ -189,10 +189,10 @@ function DeliveryCard({
 
 // ── Main component ────────────────────────────────────────
 export default function CheckoutClient() {
-  const router      = useRouter()
-  const { items }   = useCartStore()
+  const router = useRouter()
+  const { items } = useCartStore()
 
-  const [step,           setStep]           = useState<StepId>('entrega')
+  const [step, setStep] = useState<StepId>('entrega')
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod | null>(null)
   const [customer, setCustomer] = useState({
     email: '', nombre: '', apellido: '',
@@ -202,7 +202,7 @@ export default function CheckoutClient() {
     calle: '', piso: '', cp: '', notas: '',
   })
   const [loading, setLoading] = useState(false)
-  const [error,   setError]   = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => { setMounted(true) }, [])
@@ -211,24 +211,24 @@ export default function CheckoutClient() {
   }, [mounted, items.length, router])
 
   const needsShipping = deliveryMethod === 'envio'
-  const subtotal      = items.reduce((s, i) => s + (i.variant?.price ?? i.product.price ?? 0) * i.quantity, 0)
-  const shipping      = needsShipping ? SHIPPING : 0
-  const total         = subtotal + shipping
-  const itemCount     = items.reduce((s, i) => s + i.quantity, 0)
+  const subtotal = items.reduce((s, i) => s + (i.variant?.price ?? i.product.price ?? 0) * i.quantity, 0)
+  const shipping = needsShipping ? SHIPPING : 0
+  const total = subtotal + shipping
+  const itemCount = items.reduce((s, i) => s + i.quantity, 0)
 
   function goNext() {
     setStep(prev => {
-      if (prev === 'entrega')  return 'datos'
-      if (prev === 'datos')    return needsShipping ? 'direccion' : 'resumen'
+      if (prev === 'entrega') return 'datos'
+      if (prev === 'datos') return needsShipping ? 'direccion' : 'resumen'
       if (prev === 'direccion') return 'resumen'
       return prev
     })
   }
 
   function goBack() {
-    if (step === 'resumen')   { setStep(needsShipping ? 'direccion' : 'datos'); return }
-    if (step === 'direccion') { setStep('datos');    return }
-    if (step === 'datos')     { setStep('entrega');  return }
+    if (step === 'resumen') { setStep(needsShipping ? 'direccion' : 'datos'); return }
+    if (step === 'direccion') { setStep('datos'); return }
+    if (step === 'datos') { setStep('entrega'); return }
     router.back()
   }
 
@@ -261,17 +261,17 @@ export default function CheckoutClient() {
         body: JSON.stringify({
           items,
           buyer: {
-            nombre:    customer.nombre,
-            apellido:  customer.apellido,
-            email:     customer.email,
-            telefono:  customer.telefono,
+            nombre: customer.nombre,
+            apellido: customer.apellido,
+            email: customer.email,
+            telefono: customer.telefono,
             direccion,
-            ciudad:    'Esperanza',
+            ciudad: 'Esperanza',
             provincia: 'Santa Fe',
-            cp:        needsShipping ? address.cp : '3080',
+            cp: needsShipping ? address.cp : '3080',
           },
           delivery: {
-            method:       deliveryMethod ?? 'retiro',
+            method: deliveryMethod ?? 'retiro',
             shippingCost: shipping,
           },
           subtotal,
@@ -297,7 +297,7 @@ export default function CheckoutClient() {
     })
     const deliveryLine = needsShipping
       ? `Envío a: ${address.calle}${address.piso ? `, ${address.piso}` : ''}, ${address.cp} Esperanza, SF`
-      : 'Entrega: Retiro en local (coordinamos por WA)'
+      : 'Entrega: Retiro en local (coordinamos por WP)'
 
     const msg = [
       'Hola! Quiero hacer un pedido:',
@@ -356,7 +356,7 @@ export default function CheckoutClient() {
                   selected={deliveryMethod === 'retiro'}
                   onClick={() => handleDeliverySelect('retiro')}
                   title="Retiro en local"
-                  subtitle="Esperanza, Santa Fe · coordinamos por WA"
+                  subtitle="Esperanza, Santa Fe · coordinamos por WP"
                   price="Gratis"
                 />
               </div>
@@ -571,9 +571,9 @@ export default function CheckoutClient() {
                 </IriEyebrow>
                 <div className="bg-white border border-ir-line rounded-ir-lg overflow-hidden">
                   {items.map((item, i) => {
-                    const price  = item.variant?.price ?? item.product.price ?? 0
-                    const kind   = categoryToKind[item.product.category] ?? 'notebook'
-                    const tone   = categoryToTone[item.product.category] ?? 'cream'
+                    const price = item.variant?.price ?? item.product.price ?? 0
+                    const kind = categoryToKind[item.product.category] ?? 'notebook'
+                    const tone = categoryToTone[item.product.category] ?? 'cream'
                     const hasImg = !!item.product.images?.[0]
                     return (
                       <div
@@ -678,22 +678,18 @@ export default function CheckoutClient() {
                 type="button"
                 onClick={handlePay}
                 disabled={loading}
-                className="mt-5 w-full flex items-center justify-center gap-1.5 px-6 rounded-xl transition-all disabled:opacity-60 hover:brightness-95"
-                style={{ height: 64, background: '#00AEEF' }}
+                className="mt-5 w-full flex items-center justify-center gap-2.5 rounded-pill text-white text-[14px] font-sans font-semibold tracking-[0.02em] transition-opacity disabled:opacity-60 bg-mp"
+                style={{ height: 52 }}
               >
                 {loading ? (
-                  <span className="mx-auto w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
-                    <span className="font-sans text-[15px] font-semibold text-white tracking-[0.01em]">
-                      Pagar con
-                    </span>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/logo-mp.png"
-                      alt="Mercado Pago"
-                      style={{ height: 36, width: 'auto' }}
-                    />
+                    <svg width="22" height="14" viewBox="0 0 22 14" fill="none">
+                      <ellipse cx="11" cy="7" rx="10" ry="6" fill="#fff" />
+                      <path d="M 4 8 Q 7 5 11 7 Q 15 9 18 6" stroke="#009EE3" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+                    </svg>
+                    Pagar con MercadoPago
                   </>
                 )}
               </button>
@@ -714,7 +710,7 @@ export default function CheckoutClient() {
                 style={{ height: 52 }}
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="#fff">
-                  <path d="M 8 0 a 8 8 0 0 0-6.93 12 L 0 16 l 4.16-1.05 A 8 8 0 1 0 8 0 Z m 4.53 11.34 c-0.19 0.53-1.1 1.02-1.55 1.07-0.46 0.07-1.05 0.1-1.69-0.1-0.39-0.13-0.89-0.29-1.53-0.57-2.7-1.16-4.46-3.88-4.59-4.06-0.13-0.18-1.1-1.46-1.1-2.78 0-1.32 0.69-1.97 0.94-2.24 0.25-0.27 0.55-0.34 0.73-0.34 0.18 0 0.37 0 0.53 0.01 0.17 0.01 0.4-0.06 0.62 0.47 0.23 0.55 0.78 1.87 0.85 2.01 0.07 0.13 0.11 0.29 0.02 0.47-0.09 0.18-0.13 0.29-0.27 0.45-0.13 0.16-0.28 0.36-0.4 0.48-0.13 0.13-0.27 0.27-0.12 0.54 0.16 0.27 0.7 1.16 1.51 1.88 1.04 0.93 1.92 1.21 2.18 1.35 0.27 0.13 0.43 0.11 0.59-0.07 0.16-0.18 0.68-0.79 0.86-1.06 0.18-0.27 0.36-0.23 0.61-0.13 0.25 0.09 1.57 0.74 1.83 0.87 0.27 0.13 0.45 0.2 0.51 0.31 0.07 0.11 0.07 0.66-0.12 1.19 z"/>
+                  <path d="M 8 0 a 8 8 0 0 0-6.93 12 L 0 16 l 4.16-1.05 A 8 8 0 1 0 8 0 Z m 4.53 11.34 c-0.19 0.53-1.1 1.02-1.55 1.07-0.46 0.07-1.05 0.1-1.69-0.1-0.39-0.13-0.89-0.29-1.53-0.57-2.7-1.16-4.46-3.88-4.59-4.06-0.13-0.18-1.1-1.46-1.1-2.78 0-1.32 0.69-1.97 0.94-2.24 0.25-0.27 0.55-0.34 0.73-0.34 0.18 0 0.37 0 0.53 0.01 0.17 0.01 0.4-0.06 0.62 0.47 0.23 0.55 0.78 1.87 0.85 2.01 0.07 0.13 0.11 0.29 0.02 0.47-0.09 0.18-0.13 0.29-0.27 0.45-0.13 0.16-0.28 0.36-0.4 0.48-0.13 0.13-0.27 0.27-0.12 0.54 0.16 0.27 0.7 1.16 1.51 1.88 1.04 0.93 1.92 1.21 2.18 1.35 0.27 0.13 0.43 0.11 0.59-0.07 0.16-0.18 0.68-0.79 0.86-1.06 0.18-0.27 0.36-0.23 0.61-0.13 0.25 0.09 1.57 0.74 1.83 0.87 0.27 0.13 0.45 0.2 0.51 0.31 0.07 0.11 0.07 0.66-0.12 1.19 z" />
                 </svg>
                 Enviar pedido por WhatsApp
               </a>
